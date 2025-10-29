@@ -1,0 +1,49 @@
+# generated: 2025-10-29
+# project: legend-platform
+# project_key: legend-platform
+# tracking_system: file-system
+# story_location: {project-root}/docs/stories
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic exists in epic file but not contexted
+#   - contexted: Epic tech context created (required before drafting stories)
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - drafted: Story file created in stories folder
+#   - ready-for-dev: Draft approved and story context created
+#   - in-progress: Developer actively working on implementation
+#   - review: Under SM review (via code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - completed: Retrospective has been done
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epics should be 'contexted' before stories can be 'drafted'
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically drafts next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', SM reviews, then Dev moves to 'done'
+
+generated: 2025-10-29
+project: legend-platform
+project_key: legend-platform
+tracking_system: file-system
+story_location: "{project-root}/docs/stories"
+
+development_status:
+  epic-1: contexted
+  1-1-monorepo-core-services-scaffolding: done
+  1-2-shell-auth0-integration: drafted
+  1-3-api-gateway-central-token-validation: backlog
+  1-4-auditsapp-nextjs-be-integration: backlog
+  1-5-scheduleapp-backend-auth-migration: backlog
+  1-6-scheduleapp-frontend-cra-integration: backlog
+  1-7-hierarchical-user-creation-admin-ui-api: backlog
+  1-8-hierarchical-user-creation-manager-ui-api: backlog
+  1-9-basic-monitoring-setup: backlog
+  epic-1-retrospective: optional

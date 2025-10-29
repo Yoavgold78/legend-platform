@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context>
+  <meta>
+    <story-id>1.1</story-id>
+    <story-key>1-1-monorepo-core-services-scaffolding</story-key>
+    <epic>1</epic>
+    <title>Monorepo &amp; Core Services Scaffolding</title>
+    <generated-date>2025-10-29</generated-date>
+  </meta>
+
+  <user-story>
+    <as-a>DevOps Engineer</as-a>
+    <i-want>to set up the npm workspaces Monorepo structure with all application and package directories scaffolded</i-want>
+    <so-that>all new and migrated applications (Shell, Gateway, Backends) can be versioned and managed from one unified repository</so-that>
+  </user-story>
+
+  <acceptance-criteria>
+    <criterion id="AC1.1">Monorepo created at `legend-platform/` root with npm workspaces configured in root `package.json`</criterion>
+    <criterion id="AC1.2">Directory structure established with empty scaffolding: apps/shell, apps/api-gateway, apps/audits-be, apps/schedule-be</criterion>
+    <criterion id="AC1.3">Shared packages directory structure created with empty scaffolding: packages/ui, packages/types, packages/auth-client, packages/config</criterion>
+    <criterion id="AC1.4">Shared ESLint, Prettier, and tsconfig base configurations present in `packages/config` and successfully referenced by workspace packages</criterion>
+    <criterion id="AC1.5">`npm install` runs successfully from monorepo root and correctly links all workspace dependencies</criterion>
+    <criterion id="AC1.6">Render services created in Staging environment for apps/shell (Web Service) and apps/api-gateway (Web Service)</criterion>
+  </acceptance-criteria>
+
+  <tasks>
+    <task id="T1" acs="AC1.1,AC1.2,AC1.3">
+      <description>Initialize monorepo structure</description>
+      <subtasks>
+        <subtask id="T1.1">Create root `legend-platform/` directory</subtask>
+        <subtask id="T1.2">Initialize root `package.json` with workspaces configuration pointing to `apps/*` and `packages/*`</subtask>
+        <subtask id="T1.3">Create directory structure for all `apps/` services (shell, api-gateway, audits-be, schedule-be)</subtask>
+        <subtask id="T1.4">Create directory structure for all `packages/` libraries (ui, types, auth-client, config)</subtask>
+        <subtask id="T1.5">Add `.gitignore` at root (ignore `node_modules/`, `.env`, `.next/`, `dist/`, etc.)</subtask>
+      </subtasks>
+    </task>
+    <task id="T2" acs="AC1.4">
+      <description>Set up shared configuration packages</description>
+      <subtasks>
+        <subtask id="T2.1">Create `packages/config/package.json` with name `@legend/config`</subtask>
+        <subtask id="T2.2">Add `packages/config/eslint.config.js` with base ESLint rules (TypeScript, React, Node.js support)</subtask>
+        <subtask id="T2.3">Add `packages/config/prettier.config.js` with formatting rules (semi: true, singleQuote: true, etc.)</subtask>
+        <subtask id="T2.4">Add `packages/config/tsconfig.base.json` with shared TypeScript compiler options (strict mode, ES2022 target, moduleResolution: bundler)</subtask>
+        <subtask id="T2.5">Export config files from `packages/config/package.json` exports field</subtask>
+      </subtasks>
+    </task>
+    <task id="T3" acs="AC1.2,AC1.3">
+      <description>Initialize workspace packages with minimal package.json</description>
+      <subtasks>
+        <subtask id="T3.1">Create `apps/shell/package.json` with name, scripts (dev, build, lint), and dependencies placeholder</subtask>
+        <subtask id="T3.2">Create `apps/api-gateway/package.json` with name, scripts, dependencies placeholder</subtask>
+        <subtask id="T3.3">Create `apps/audits-be/package.json` with name, scripts, dependencies placeholder</subtask>
+        <subtask id="T3.4">Create `apps/schedule-be/package.json` with name, scripts, dependencies placeholder</subtask>
+        <subtask id="T3.5">Create `packages/ui/package.json` with name `@legend/ui`, React peerDependencies</subtask>
+        <subtask id="T3.6">Create `packages/types/package.json` with name `@legend/types`</subtask>
+        <subtask id="T3.7">Create `packages/auth-client/package.json` with name `@legend/auth-client`</subtask>
+        <subtask id="T3.8">All workspace packages reference `@legend/config` for linting/formatting</subtask>
+      </subtasks>
+    </task>
+    <task id="T4" acs="AC1.5">
+      <description>Install dependencies and verify workspace linking</description>
+      <subtasks>
+        <subtask id="T4.1">Run `npm install` from monorepo root</subtask>
+        <subtask id="T4.2">Verify workspace symlinks created in `node_modules/@legend/*`</subtask>
+        <subtask id="T4.3">Test lint command runs successfully from root: `npm run lint --workspaces`</subtask>
+        <subtask id="T4.4">Verify no dependency resolution errors or circular dependencies</subtask>
+      </subtasks>
+    </task>
+    <task id="T5" acs="AC1.6">
+      <description>Create Render services in Staging</description>
+      <subtasks>
+        <subtask id="T5.1">Log into Render dashboard, create new project for `legend-platform`</subtask>
+        <subtask id="T5.2">Create Web Service for `apps/shell` with build/start commands and Root Directory configured</subtask>
+        <subtask id="T5.3">Create Web Service for `apps/api-gateway` with build/start commands and Root Directory configured</subtask>
+        <subtask id="T5.4">Configure environment variables for Staging services (placeholders for now)</subtask>
+        <subtask id="T5.5">Verify services deploy successfully (even if empty/placeholder apps)</subtask>
+      </subtasks>
+    </task>
+    <task id="T6" acs="ALL">
+      <description>Testing and validation</description>
+      <subtasks>
+        <subtask id="T6.1">Verify directory structure matches spec: all `apps/` and `packages/` present</subtask>
+        <subtask id="T6.2">Run `npm install` from root → succeeds with no errors</subtask>
+        <subtask id="T6.3">Run `npm run lint --workspaces` → succeeds (or reports no files to lint)</subtask>
+        <subtask id="T6.4">Verify Render Staging services are created and accessible</subtask>
+        <subtask id="T6.5">Document any configuration decisions or deviations in Dev Notes</subtask>
+      </subtasks>
+    </task>
+  </tasks>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/brownfield-architecture.md</path>
+        <title>Brownfield Application Unification Architecture</title>
+        <section>Section 5 - Component Architecture</section>
+        <snippet>Defines the complete Monorepo structure using npm workspaces with apps/ for deployable applications (shell, api-gateway, audits-be, schedule-be) and packages/ for shared code libraries (ui, types, auth-client, config).</snippet>
+      </doc>
+      <doc>
+        <path>docs/brownfield-architecture.md</path>
+        <title>Brownfield Application Unification Architecture</title>
+        <section>Section 9 - Coding Standards</section>
+        <snippet>Mandates TypeScript for all new code, ES Modules, ESLint/Prettier enforcement via shared config in packages/config. Specifies strict mode, WCAG 2.1 Level AA accessibility compliance.</snippet>
+      </doc>
+      <doc>
+        <path>docs/brownfield-architecture.md</path>
+        <title>Brownfield Application Unification Architecture</title>
+        <section>Section 8 - Infrastructure and Deployment Integration</section>
+        <snippet>Render platform configured for Monorepo deployment with selective builds per subdirectory. Each apps/ service deployed as separate Render service with Root Directory pointing to workspace path.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Legenda Platform Unification V1</title>
+        <section>Detailed Design - Services and Modules</section>
+        <snippet>Complete table of 8 services/modules: apps/shell (Next.js), apps/api-gateway (Node/Express), apps/audits-be, apps/schedule-be, packages/ui (React/MUI), packages/types (TypeScript), packages/auth-client (Auth0), packages/config (ESLint/Prettier/tsconfig).</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Legenda Platform Unification V1</title>
+        <section>Dependencies and Integrations</section>
+        <snippet>Specifies exact dependency versions: Next.js ^14.2.0, Express ^4.19.0, React ^18.3.0, MUI ^5.15.0, Tailwind ^3.4.0, Vitest ^1.5.0, Playwright ^1.44.0, ESLint ^8.57.0, Prettier ^3.2.0.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Legenda Platform Unification V1</title>
+        <section>Acceptance Criteria - AC1</section>
+        <snippet>AC1 defines complete Monorepo setup requirements matching this story's acceptance criteria exactly, including workspace configuration, directory structure, shared configs, and Render service creation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Legenda Unified Platform Brownfield Enhancement PRD</title>
+        <section>Non-Functional Requirements - NFR3</section>
+        <snippet>NFR3: All code (new Shell, Gateway, and existing Frontends/Backends) will be migrated and managed within Monorepo using npm workspaces.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <!-- No existing code to reference - greenfield Monorepo setup -->
+    </code>
+
+    <dependencies>
+      <package-manager>npm</package-manager>
+      <workspace-tool>npm workspaces (built-in)</workspace-tool>
+      <frameworks>
+        <framework>Next.js ^14.2.0</framework>
+        <framework>Express ^4.19.0</framework>
+        <framework>React ^18.3.0</framework>
+        <framework>TypeScript ^5.x</framework>
+        <framework>MUI ^5.15.0</framework>
+        <framework>Tailwind CSS ^3.4.0</framework>
+      </frameworks>
+      <dev-tools>
+        <tool>ESLint ^8.57.0</tool>
+        <tool>Prettier ^3.2.0</tool>
+        <tool>Vitest ^1.5.0 (testing)</tool>
+        <tool>Playwright ^1.44.0 (E2E testing)</tool>
+      </dev-tools>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface>
+      <name>npm workspaces</name>
+      <kind>package manager configuration</kind>
+      <signature>
+        Root package.json with:
+        {
+          "workspaces": ["apps/*", "packages/*"]
+        }
+      </signature>
+      <path>package.json (root)</path>
+    </interface>
+    <interface>
+      <name>@legend/config ESLint</name>
+      <kind>shared configuration</kind>
+      <signature>
+        module.exports = {
+          extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'prettier'],
+          parser: '@typescript-eslint/parser',
+          plugins: ['@typescript-eslint', 'react']
+        }
+      </signature>
+      <path>packages/config/eslint.config.js</path>
+    </interface>
+    <interface>
+      <name>@legend/config TypeScript</name>
+      <kind>shared configuration</kind>
+      <signature>
+        {
+          "compilerOptions": {
+            "strict": true,
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "bundler",
+            "esModuleInterop": true
+          }
+        }
+      </signature>
+      <path>packages/config/tsconfig.base.json</path>
+    </interface>
+    <interface>
+      <name>@legend/config Prettier</name>
+      <kind>shared configuration</kind>
+      <signature>
+        module.exports = {
+          semi: true,
+          singleQuote: true,
+          trailingComma: 'es5',
+          printWidth: 100
+        }
+      </signature>
+      <path>packages/config/prettier.config.js</path>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint type="architecture">
+      <description>All workspace packages must use scoped naming convention: @legend/package-name</description>
+      <source>brownfield-architecture.md Section 5</source>
+    </constraint>
+    <constraint type="architecture">
+      <description>Monorepo structure must separate deployable apps (apps/) from shared libraries (packages/)</description>
+      <source>brownfield-architecture.md Section 5</source>
+    </constraint>
+    <constraint type="technology">
+      <description>npm workspaces is the mandated tool (not pnpm or yarn)</description>
+      <source>brownfield-architecture.md Section 3</source>
+    </constraint>
+    <constraint type="coding-standard">
+      <description>TypeScript strict mode required for all new code</description>
+      <source>brownfield-architecture.md Section 9</source>
+    </constraint>
+    <constraint type="coding-standard">
+      <description>ES Modules (import/export) are the standard; CommonJS (require) only for legacy compatibility</description>
+      <source>brownfield-architecture.md Section 9</source>
+    </constraint>
+    <constraint type="deployment">
+      <description>Render deployment requires Root Directory set to workspace path (e.g., apps/shell)</description>
+      <source>brownfield-architecture.md Section 8</source>
+    </constraint>
+    <constraint type="deployment">
+      <description>Render build commands must include npm install at root before workspace-specific build</description>
+      <source>brownfield-architecture.md Section 8</source>
+    </constraint>
+    <constraint type="dependency">
+      <description>Avoid circular dependencies between workspace packages</description>
+      <source>Story Dev Notes - Potential Gotchas</source>
+    </constraint>
+    <constraint type="compatibility">
+      <description>npm workspaces require npm >= 7 (Node.js >= 15.0.0)</description>
+      <source>Story Dev Notes - Potential Gotchas</source>
+    </constraint>
+  </constraints>
+
+  <tests>
+    <standards>
+      Manual validation testing for this infrastructure story. No automated tests required at this stage. Future stories will implement Vitest for unit/integration tests and Playwright for E2E tests. Render CI will validate build success automatically.
+    </standards>
+    <locations>
+      <location>No test files for this story (pure infrastructure setup)</location>
+    </locations>
+    <ideas>
+      <test-idea ac="AC1.1">
+        <description>Verify root package.json exists and contains workspaces field with correct glob patterns</description>
+        <type>manual</type>
+      </test-idea>
+      <test-idea ac="AC1.2,AC1.3">
+        <description>Check directory structure: verify all 4 apps/ and 4 packages/ directories exist</description>
+        <type>manual</type>
+      </test-idea>
+      <test-idea ac="AC1.4">
+        <description>Verify packages/config contains eslint.config.js, prettier.config.js, tsconfig.base.json</description>
+        <type>manual</type>
+      </test-idea>
+      <test-idea ac="AC1.5">
+        <description>Run `npm install` from root and verify exit code 0 with no errors</description>
+        <type>manual</type>
+      </test-idea>
+      <test-idea ac="AC1.5">
+        <description>Check node_modules/@legend/* contains symlinks to workspace packages</description>
+        <type>manual</type>
+      </test-idea>
+      <test-idea ac="AC1.5">
+        <description>Run `npm run lint --workspaces` and verify it executes without errors</description>
+        <type>manual</type>
+      </test-idea>
+      <test-idea ac="AC1.6">
+        <description>Log into Render dashboard and confirm legend-shell-staging and legend-gateway-staging services exist</description>
+        <type>manual</type>
+      </test-idea>
+      <test-idea ac="AC1.6">
+        <description>Trigger manual deploy on Render services and verify build completes successfully</description>
+        <type>manual</type>
+      </test-idea>
+    </ideas>
+  </tests>
+
+</story-context>
