@@ -1,0 +1,86 @@
+import { getSession } from '@auth0/nextjs-auth0';
+import { redirect } from 'next/navigation';
+
+/**
+ * Role-Based Router Dashboard
+ * 
+ * This page reads user roles from Auth0 session and redirects to appropriate app dashboard.
+ * Roles are stored in Auth0 custom claim: https://legend-platform.com/roles
+ * 
+ * Role Priority (if user has multiple roles):
+ * 1. admin (highest priority)
+ * 2. store-manager
+ * 3. inspector
+ * 4. manager
+ * 5. employee
+ * 6. store (lowest priority)
+ * 
+ * Role → Route Mapping:
+ * AuditsApp:
+ *   - admin → /auditapp/admin
+ *   - store-manager → /auditapp/manager
+ *   - inspector → /auditapp/inspection
+ *   - store → /auditapp/share (store tablet view)
+ * 
+ * ScheduleApp:
+ *   - admin → /scheduleapp/dashboard
+ *   - manager → /scheduleapp/shifts
+ *   - employee → /scheduleapp/employee-dashboard
+ * 
+ * Note: Routes /auditapp/* and /scheduleapp/* will be implemented in Stories 1.4 and 1.6
+ */
+
+export default async function Dashboard() {
+  const session = await getSession();
+  const user = session?.user;
+
+  // Safety check: Should never happen due to middleware protection
+  if (!user) {
+    redirect('/api/auth/login');
+  }
+
+  // Extract roles from Auth0 custom claim
+  // Format: user['https://legend-platform.com/roles'] = ['admin', 'inspector']
+  const roles: string[] = user['https://legend-platform.com/roles'] || [];
+
+  // Role-based routing with priority order
+  if (roles.includes('admin')) {
+    // Admin users go to AuditsApp admin dashboard (can also access inspector dashboard manually)
+    redirect('/auditapp/admin');
+  } else if (roles.includes('store-manager')) {
+    // Store managers go to AuditsApp manager dashboard
+    redirect('/auditapp/manager');
+  } else if (roles.includes('inspector')) {
+    // Inspectors go to AuditsApp inspection dashboard
+    redirect('/auditapp/inspection');
+  } else if (roles.includes('manager')) {
+    // Managers (Schedule) go to ScheduleApp shifts page
+    redirect('/scheduleapp/shifts');
+  } else if (roles.includes('employee')) {
+    // Employees go to ScheduleApp employee dashboard
+    redirect('/scheduleapp/employee-dashboard');
+  } else if (roles.includes('store')) {
+    // Store employees go to AuditsApp shared view (tablet)
+    redirect('/auditapp/share');
+  } else {
+    // Fallback: No recognized roles - show error page
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-red-50 border-2 border-red-200 rounded-lg shadow-md p-6 md:p-8">
+          <h2 className="text-3xl font-bold mb-4 text-red-900">Access Denied</h2>
+          <p className="text-red-700 mb-6">
+            Your account does not have any assigned roles. Please contact your administrator.
+          </p>
+          <div className="bg-white p-4 rounded border border-red-200">
+            <p className="text-sm text-gray-600">
+              <strong>User:</strong> {user.name || user.email}
+            </p>
+            <p className="text-sm text-gray-600 mt-2">
+              <strong>Assigned Roles:</strong> {roles.length > 0 ? roles.join(', ') : 'None'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}

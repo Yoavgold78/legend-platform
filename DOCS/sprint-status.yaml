@@ -38,7 +38,7 @@ story_location: "{project-root}/docs/stories"
 development_status:
   epic-1: contexted
   1-1-monorepo-core-services-scaffolding: done
-  1-2-shell-auth0-integration: drafted
+  1-2-shell-auth0-integration: review
   1-3-api-gateway-central-token-validation: backlog
   1-4-auditsapp-nextjs-be-integration: backlog
   1-5-scheduleapp-backend-auth-migration: backlog

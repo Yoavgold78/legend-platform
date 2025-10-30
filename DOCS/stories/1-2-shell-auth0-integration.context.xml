@@ -1,0 +1,259 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Shell Auth0 Integration</title>
+    <status>drafted</status>
+    <generatedAt>2025-10-29</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-2-shell-auth0-integration.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>User</asA>
+    <iWant>to log in and log out of the new Shell application using my Auth0 credentials</iWant>
+    <soThat>I have a single point of entry to the unified platform with secure authentication</soThat>
+    <tasks>
+      <task id="1" name="Set up Next.js Shell application" ac="2.1">
+        <subtask id="1.1">Initialize Next.js app in apps/shell/ using npx create-next-app@latest with TypeScript, App Router, Tailwind CSS</subtask>
+        <subtask id="1.2">Update apps/shell/package.json to include workspace dependencies (@legend/ui, @legend/types, @legend/auth-client)</subtask>
+        <subtask id="1.3">Configure next.config.js for production settings (strict mode, etc.)</subtask>
+        <subtask id="1.4">Create basic app structure: app/layout.tsx (root layout), app/page.tsx (landing page)</subtask>
+        <subtask id="1.5">Install and configure Tailwind CSS + MUI theme provider</subtask>
+      </task>
+      <task id="2" name="Install and configure Auth0 SDK" ac="2.1">
+        <subtask id="2.1">Install @auth0/nextjs-auth0 package in apps/shell</subtask>
+        <subtask id="2.2">Create .env.local template with Auth0 environment variables (AUTH0_SECRET, AUTH0_BASE_URL, AUTH0_ISSUER_BASE_URL, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET)</subtask>
+        <subtask id="2.3">Configure Auth0Provider in root app/layout.tsx using UserProvider from Auth0 SDK</subtask>
+        <subtask id="2.4">Create API route handler: app/api/auth/[auth0]/route.ts using handleAuth() from SDK</subtask>
+        <subtask id="2.5">Verify Auth0 application configured in Auth0 dashboard (Allowed Callback URLs, Logout URLs, Web Origins)</subtask>
+      </task>
+      <task id="3" name="Implement login functionality" ac="2.2, 2.3">
+        <subtask id="3.1">Create login button component in app/page.tsx that links to /api/auth/login</subtask>
+        <subtask id="3.2">Style login page with basic branding and Mobile-First design</subtask>
+        <subtask id="3.3">Test login flow: click Login → redirect to Auth0 Universal Login → enter credentials → redirect back to Shell</subtask>
+        <subtask id="3.4">Verify Auth0 session cookie is set after successful login</subtask>
+        <subtask id="3.5">Handle Auth0 callback errors (display error message if authentication fails)</subtask>
+      </task>
+      <task id="4" name="Display authenticated user information" ac="2.4">
+        <subtask id="4.1">Create app/(main)/layout.tsx for authenticated app layout with shared navigation</subtask>
+        <subtask id="4.2">Use useUser() hook from Auth0 SDK to get user profile</subtask>
+        <subtask id="4.3">Display users name in header/navigation bar (e.g., "Welcome, {user.name}")</subtask>
+        <subtask id="4.4">Add user avatar/profile picture if available from Auth0 profile</subtask>
+        <subtask id="4.5">Create protected dashboard page app/(main)/dashboard/page.tsx as landing after login</subtask>
+      </task>
+      <task id="5" name="Implement logout functionality" ac="2.5">
+        <subtask id="5.1">Add "Logout" button/link to authenticated layout header</subtask>
+        <subtask id="5.2">Logout button links to /api/auth/logout (provided by Auth0 SDK)</subtask>
+        <subtask id="5.3">Test logout flow: click Logout → session cleared → redirect to login page</subtask>
+        <subtask id="5.4">Verify Auth0 session cookie is removed after logout</subtask>
+        <subtask id="5.5">Confirm user cannot access protected routes after logout</subtask>
+      </task>
+      <task id="6" name="Implement route protection" ac="2.6">
+        <subtask id="6.1">Create middleware or use withPageAuthRequired for protected routes</subtask>
+        <subtask id="6.2">Wrap app/(main)/* routes to require authentication</subtask>
+        <subtask id="6.3">Test unauthenticated access: navigate to /dashboard without login → redirect to login</subtask>
+        <subtask id="6.4">Verify redirect includes return URL to navigate back after login</subtask>
+      </task>
+      <task id="7" name="Testing and validation" ac="ALL">
+        <subtask id="7.1">Manual E2E test: Full login flow (login → see name → logout → redirect)</subtask>
+        <subtask id="7.2">Test on mobile viewport (375px) → verify login/logout work on touch device</subtask>
+        <subtask id="7.3">Test error scenarios: invalid credentials, network error, Auth0 downtime</subtask>
+        <subtask id="7.4">Verify Auth0 security best practices: HTTPS only, secure cookies, PKCE flow</subtask>
+        <subtask id="7.5">Update Render Staging service for apps/shell with Auth0 environment variables</subtask>
+        <subtask id="7.6">Deploy to Staging and verify login works in deployed environment</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="AC2.1">apps/shell Next.js app created with Auth0 SDK configured (@auth0/nextjs-auth0)</ac>
+    <ac id="AC2.2">Login button/link present on landing page that redirects to Auth0 Universal Login</ac>
+    <ac id="AC2.3">After successful Auth0 authentication, user is redirected back to Shell and session is established</ac>
+    <ac id="AC2.4">Users name is displayed in Shell header/navigation after login</ac>
+    <ac id="AC2.5">Logout button/link present that clears the session and redirects to login page</ac>
+    <ac id="AC2.6">Unauthenticated users attempting to access protected routes are redirected to login</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Legenda Unified Platform PRD</title>
+        <section>Story 1.2: Shell Auth0 Integration</section>
+        <snippet>User wants to log in and log out using Auth0 credentials for single point of entry. Shell (Next.js) configured with Auth0 SDK, Login redirects to Auth0 Universal Login, user returned and identified showing name, Logout clears session.</snippet>
+      </doc>
+      <doc>
+        <path>docs/brownfield-architecture.md</path>
+        <title>Brownfield Application Unification Architecture</title>
+        <section>Section 3: Tech Stack Alignment</section>
+        <snippet>Frontend: Next.js (App Router), React, TypeScript. Authentication: Auth0 (single, central provider). UI: MUI (primary) combined with Tailwind CSS. Shell application (Next.js) with Auth0 integration, shared navigation, and Mobile-First design.</snippet>
+      </doc>
+      <doc>
+        <path>docs/brownfield-architecture.md</path>
+        <title>Brownfield Application Unification Architecture</title>
+        <section>Section 11: Security Integration</section>
+        <snippet>Authentication: 100% Auth0. Central Shell Application (Next.js) built to house main layout and shared navigation. Auth0 Universal Login must be used, session cookies must be secure (httpOnly, sameSite, secure flags).</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Legenda Platform Unification V1</title>
+        <section>AC2 (Shell Auth0 Login - Story 1.2)</section>
+        <snippet>apps/shell Next.js app with Auth0 SDK configured (@auth0/nextjs-auth0), Login button redirects to Auth0 Universal Login, successful authentication returns user to Shell with session, user name displayed in header, Logout clears session and redirects, unauthenticated users redirected to login.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Legenda Platform Unification V1</title>
+        <section>Workflows and Sequencing: User Login Flow</section>
+        <snippet>11-step sequence from initial navigation to Auth0 and back. User clicks Login → Shell redirects to Auth0 Universal Login → user enters credentials → Auth0 validates → callback to Shell → session created → user sees authenticated view with name displayed.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Legenda Platform Unification V1</title>
+        <section>Non-Functional Requirements: Security</section>
+        <snippet>Auth0 as single provider, session-based authentication with secure cookies. PKCE flow enabled. Client secret stored in environment variables only. Protected routes check authentication before rendering.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Legenda Platform Unification V1</title>
+        <section>Non-Functional Requirements: Performance</section>
+        <snippet>Shell Load Time target &lt; 2 seconds for First Contentful Paint. Mobile-First responsive design required for 375px viewport minimum.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>apps/shell/package.json</path>
+        <kind>package</kind>
+        <symbol>shell workspace package</symbol>
+        <lines>1-24</lines>
+        <reason>Existing shell package with Next.js 14.2.0, React 18.3.0, and workspace dependencies (@legend/ui, @legend/types, @legend/auth-client). Need to add @auth0/nextjs-auth0 ^3.5.0 dependency.</reason>
+      </artifact>
+      <artifact>
+        <path>package.json</path>
+        <kind>package</kind>
+        <symbol>root monorepo package</symbol>
+        <lines>1-16</lines>
+        <reason>Root package.json with npm workspaces configured for apps/* and packages/*. Provides workspace context for Shell app development.</reason>
+      </artifact>
+      <artifact>
+        <path>packages/config/tsconfig.base.json</path>
+        <kind>config</kind>
+        <symbol>TypeScript base configuration</symbol>
+        <lines>1-16</lines>
+        <reason>Shared TypeScript configuration with strict mode, ES2022 target, and JSX preserve. Shell app will extend this base config.</reason>
+      </artifact>
+      <artifact>
+        <path>packages/config/eslint.config.js</path>
+        <kind>config</kind>
+        <symbol>ESLint shared configuration</symbol>
+        <lines></lines>
+        <reason>Shared ESLint configuration for code quality standards across all workspace packages.</reason>
+      </artifact>
+      <artifact>
+        <path>apps/shell/.eslintrc.json</path>
+        <kind>config</kind>
+        <symbol>Shell ESLint config</symbol>
+        <lines></lines>
+        <reason>Existing shell ESLint configuration that extends shared config.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="@auth0/nextjs-auth0" version="^3.5.0" purpose="Auth0 SDK for Next.js - handles authentication, sessions, login/logout API routes"/>
+        <package name="next" version="^14.2.0" purpose="Next.js framework with App Router for Shell application"/>
+        <package name="react" version="^18.3.0" purpose="React library for UI components"/>
+        <package name="react-dom" version="^18.3.0" purpose="React DOM rendering"/>
+        <package name="typescript" version="^5.4.0" purpose="TypeScript compiler for type safety"/>
+        <package name="@types/node" version="^20.12.0" purpose="TypeScript definitions for Node.js"/>
+        <package name="@types/react" version="^18.3.0" purpose="TypeScript definitions for React"/>
+        <package name="@types/react-dom" version="^18.3.0" purpose="TypeScript definitions for React DOM"/>
+        <package name="@mui/material" version="^5.15.0" purpose="MUI component library for UI (to be added)"/>
+        <package name="tailwindcss" version="^3.4.0" purpose="Tailwind CSS utility framework (to be added)"/>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Auth0 Universal Login must be used (not embedded login forms) - mandated by Architecture Section 11</constraint>
+    <constraint>Session cookies must be secure with httpOnly, sameSite, and secure flags - Security requirement</constraint>
+    <constraint>Must support Mobile-First responsive design with 375px viewport minimum - NFR4 requirement</constraint>
+    <constraint>TypeScript strict mode must be enabled - Coding Standards Section 9</constraint>
+    <constraint>Logout must clear all session data and redirect to public page - AC2.5 requirement</constraint>
+    <constraint>Protected routes must check authentication before rendering - AC2.6 requirement</constraint>
+    <constraint>Shell Load Time target &lt; 2 seconds for First Contentful Paint - Performance NFR</constraint>
+    <constraint>PKCE flow must be enabled (default in Auth0 SDK) - Security best practice</constraint>
+    <constraint>Client secret stored in environment variables only (never in code) - Security requirement</constraint>
+    <constraint>Accessibility compliance: WCAG 2.1 Level AA - Coding Standards Section 9</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>UserProvider from @auth0/nextjs-auth0/client</name>
+      <kind>React Context Provider</kind>
+      <signature>import { UserProvider } from '@auth0/nextjs-auth0/client'</signature>
+      <path>node_modules/@auth0/nextjs-auth0/client</path>
+      <usage>Wrap root layout to provide Auth0 user context to all components</usage>
+    </interface>
+    <interface>
+      <name>useUser hook from @auth0/nextjs-auth0/client</name>
+      <kind>React Hook</kind>
+      <signature>const { user, error, isLoading } = useUser()</signature>
+      <path>node_modules/@auth0/nextjs-auth0/client</path>
+      <usage>Get authenticated user information in client components</usage>
+    </interface>
+    <interface>
+      <name>handleAuth from @auth0/nextjs-auth0</name>
+      <kind>API Route Handler</kind>
+      <signature>export const GET = handleAuth()</signature>
+      <path>node_modules/@auth0/nextjs-auth0</path>
+      <usage>Create auth API routes for login, logout, callback, and profile at app/api/auth/[auth0]/route.ts</usage>
+    </interface>
+    <interface>
+      <name>withPageAuthRequired from @auth0/nextjs-auth0</name>
+      <kind>Higher-Order Function</kind>
+      <signature>export default withPageAuthRequired(async function Page() {...}, { returnTo: '/path' })</signature>
+      <path>node_modules/@auth0/nextjs-auth0</path>
+      <usage>Protect server components requiring authentication</usage>
+    </interface>
+    <interface>
+      <name>withMiddlewareAuthRequired from @auth0/nextjs-auth0/edge</name>
+      <kind>Middleware Function</kind>
+      <signature>export default withMiddlewareAuthRequired()</signature>
+      <path>node_modules/@auth0/nextjs-auth0/edge</path>
+      <usage>Optional: Protect routes at middleware level for app/(main) group</usage>
+    </interface>
+    <interface>
+      <name>Auth0 API Routes</name>
+      <kind>REST API</kind>
+      <signature>/api/auth/login - Redirects to Auth0 Universal Login
+/api/auth/logout - Clears session and redirects to login
+/api/auth/callback - Handles Auth0 callback after authentication
+/api/auth/me - Returns current user profile</signature>
+      <path>Provided by handleAuth() in app/api/auth/[auth0]/route.ts</path>
+      <usage>Login/logout functionality and session management</usage>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+Unit/Integration tests using Vitest or Jest for component logic. E2E tests using Playwright for full authentication flows. Manual testing required for mobile viewports (375px) and error scenarios. All 6 acceptance criteria must be validated before marking story done. Security best practices checklist must be verified (HTTPS, secure cookies, PKCE, environment variables).
+    </standards>
+    <locations>
+      <location>apps/shell/__tests__/</location>
+      <location>apps/shell/**/*.test.tsx</location>
+      <location>e2e/shell-auth.spec.ts</location>
+    </locations>
+    <ideas>
+      <idea ac="AC2.1">Verify @auth0/nextjs-auth0 package in apps/shell/package.json. Check Auth0Provider wraps root layout in app/layout.tsx.</idea>
+      <idea ac="AC2.2">Test Login button renders on landing page (app/page.tsx) and links to /api/auth/login. Mock redirect to Auth0 Universal Login.</idea>
+      <idea ac="AC2.3">Mock Auth0 callback with valid token. Verify session cookie is set. Check user is redirected to dashboard or main app.</idea>
+      <idea ac="AC2.4">Mock useUser() hook returning user object. Verify user name displays in authenticated layout header (app/(main)/layout.tsx).</idea>
+      <idea ac="AC2.5">Test Logout button renders in authenticated layout. Click Logout → verify redirect to /api/auth/logout → session cleared → redirect to login page.</idea>
+      <idea ac="AC2.6">Test unauthenticated access to /dashboard → verify redirect to /api/auth/login with returnTo parameter.</idea>
+      <idea>E2E test: Full login flow from landing page → Auth0 → callback → authenticated view → logout → back to login.</idea>
+      <idea>Mobile test: Verify login/logout work on 375px viewport with touch interactions.</idea>
+      <idea>Error test: Simulate Auth0 service unavailable → verify graceful error handling with error page.</idea>
+      <idea>Security test: Verify session cookies have httpOnly, secure, sameSite flags in production environment.</idea>
+    </ideas>
+  </tests>
+</story-context>
