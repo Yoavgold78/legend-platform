@@ -1,0 +1,54 @@
+services:
+  # Shell - Next.js Frontend (Story 1.2)
+  - type: web
+    name: shell
+    env: node
+    buildCommand: npm install && npm run build --workspace=apps/shell
+    startCommand: npm start --workspace=apps/shell
+    envVars:
+      - key: AUTH0_SECRET
+        generateValue: true
+      - key: AUTH0_BASE_URL
+        sync: false
+      - key: AUTH0_ISSUER_BASE_URL
+        sync: false
+      - key: AUTH0_CLIENT_ID
+        sync: false
+      - key: AUTH0_CLIENT_SECRET
+        sync: false
+    healthCheckPath: /
+
+  # API Gateway - Central Token Validation (Story 1.3)
+  - type: web
+    name: api-gateway
+    env: node
+    buildCommand: npm install
+    startCommand: node apps/api-gateway/src/server.js
+    envVars:
+      - key: AUTH0_AUDIENCE
+        value: https://api.legend-platform.com
+      - key: AUTH0_ISSUER_BASE_URL
+        sync: false  # Set manually in Render dashboard
+      - key: AUDITS_BE_URL
+        sync: false  # Will be set to Private Service URL after Story 1.4
+      - key: SCHEDULE_BE_URL
+        sync: false  # Will be set to Private Service URL after Story 1.5
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false  # Set to Shell production URL
+    healthCheckPath: /api/v1/health
+
+  # Placeholder for audits-be (Story 1.4)
+  # - type: pserv
+  #   name: audits-be
+  #   env: node
+  #   buildCommand: npm install
+  #   startCommand: node apps/audits-be/src/server.js
+
+  # Placeholder for schedule-be (Story 1.5)
+  # - type: pserv
+  #   name: schedule-be
+  #   env: node
+  #   buildCommand: npm install
+  #   startCommand: node apps/schedule-be/src/server.js

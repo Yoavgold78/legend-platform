@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context>
+  <metadata>
+    <epic_id>1</epic_id>
+    <story_id>3</story_id>
+    <story_key>1-3-api-gateway-central-token-validation</story_key>
+    <story_title>API Gateway - Central Token Validation</story_title>
+    <story_status>ready-for-dev</story_status>
+    <generated_date>2025-10-31</generated_date>
+  </metadata>
+
+  <user_story>
+    <as_a>Backend Developer</as_a>
+    <i_want>centralized API Gateway service that validates Auth0 JWT tokens and routes requests to the appropriate backend services</i_want>
+    <so_that>authentication is handled in one place and backend services can trust incoming requests without directly validating tokens</so_that>
+  </user_story>
+
+  <acceptance_criteria>
+    <criterion id="AC3.1">
+      <description>apps/api-gateway Node/Express service created and deployed to Render as Web Service</description>
+    </criterion>
+    <criterion id="AC3.2">
+      <description>/api/v1/health endpoint responds with { status: 'ok' } for service health checks</description>
+    </criterion>
+    <criterion id="AC3.3">
+      <description>Middleware validates Auth0 JWT on all /api/v1/* requests (signature, issuer, audience, expiration)</description>
+    </criterion>
+    <criterion id="AC3.4">
+      <description>Invalid or missing tokens return HTTP 401 with error message</description>
+    </criterion>
+    <criterion id="AC3.5">
+      <description>Valid tokens result in x-user-id header (containing auth0_sub) added to proxied request</description>
+    </criterion>
+    <criterion id="AC3.6">
+      <description>Gateway routes /api/v1/audits/* requests to audits-be (placeholder for Story 1.4)</description>
+    </criterion>
+    <criterion id="AC3.7">
+      <description>Gateway routes /api/v1/schedule/* requests to schedule-be (placeholder for Story 1.5)</description>
+    </criterion>
+  </acceptance_criteria>
+
+  <story_tasks>
+    <task id="1" goal="Initialize API Gateway service (AC: 3.1)">
+      <subtask id="1.1">Create apps/api-gateway/ directory in Monorepo</subtask>
+      <subtask id="1.2">Initialize Node.js project with npm init and configure package.json with workspace dependencies</subtask>
+      <subtask id="1.3">Install Express (^4.19.0), express-oauth2-jwt-bearer (^1.6.0), http-proxy-middleware (^3.0.0)</subtask>
+      <subtask id="1.4">Install dev dependencies: TypeScript types, nodemon for hot reload</subtask>
+      <subtask id="1.5">Create src/ directory with entry point src/server.js</subtask>
+    </task>
+    <task id="2" goal="Configure Auth0 JWT validation middleware (AC: 3.3, 3.4, 3.5)">
+      <subtask id="2.1">Create .env.template with Gateway environment variables (AUTH0_AUDIENCE, AUTH0_ISSUER_BASE_URL, PORT, AUDITS_BE_URL, SCHEDULE_BE_URL)</subtask>
+      <subtask id="2.2">Create src/middleware/auth.js using express-oauth2-jwt-bearer to validate JWTs</subtask>
+      <subtask id="2.3">Configure JWT validation: check signature (RS256), issuer (Auth0 tenant), audience, expiration</subtask>
+      <subtask id="2.4">Add error handler for auth failures: return 401 with { error: 'Unauthorized', message: 'description' }</subtask>
+      <subtask id="2.5">Extract auth0_sub from validated token and add to req.auth for downstream use</subtask>
+    </task>
+    <task id="3" goal="Implement request ID middleware for tracing (NFR: Observability)">
+      <subtask id="3.1">Create src/middleware/requestId.js to generate or accept x-request-id header</subtask>
+      <subtask id="3.2">Use uuid package to generate correlation IDs if not provided by client</subtask>
+      <subtask id="3.3">Attach request ID to request object and all response headers</subtask>
+      <subtask id="3.4">Log request ID with all Gateway logs for end-to-end tracing</subtask>
+    </task>
+    <task id="4" goal="Create health check endpoint (AC: 3.2)">
+      <subtask id="4.1">Create src/routes/health.js with GET /api/v1/health endpoint</subtask>
+      <subtask id="4.2">Return { status: 'ok', timestamp: new Date().toISOString(), version: package.version }</subtask>
+      <subtask id="4.3">Endpoint should NOT require authentication (public health check)</subtask>
+      <subtask id="4.4">Test endpoint returns 200 OK</subtask>
+    </task>
+    <task id="5" goal="Implement proxy routing with user context (AC: 3.5, 3.6, 3.7)">
+      <subtask id="5.1">Create src/middleware/addUserContext.js to extract sub from req.auth and add x-user-id header</subtask>
+      <subtask id="5.2">Create src/routes/proxy.js using http-proxy-middleware to proxy requests</subtask>
+      <subtask id="5.3">Configure route: /api/v1/audits/* to process.env.AUDITS_BE_URL with x-user-id and x-request-id headers</subtask>
+      <subtask id="5.4">Configure route: /api/v1/schedule/* to process.env.SCHEDULE_BE_URL with same headers</subtask>
+      <subtask id="5.5">Handle proxy errors: return 502 Bad Gateway if backend unreachable, 504 Gateway Timeout if slow</subtask>
+      <subtask id="5.6">Log all proxied requests: timestamp, method, path, user (sub), backend, response code, latency</subtask>
+    </task>
+    <task id="6" goal="Set up Gateway server and routing (AC: 3.1)">
+      <subtask id="6.1">Create src/server.js to initialize Express app</subtask>
+      <subtask id="6.2">Apply middleware in order: requestId, CORS, JSON parser, auth (except /health), addUserContext, routes</subtask>
+      <subtask id="6.3">Mount health route at /api/v1/health (no auth)</subtask>
+      <subtask id="6.4">Mount proxy routes at /api/v1/audits and /api/v1/schedule (with auth)</subtask>
+      <subtask id="6.5">Add catch-all 404 handler for unmatched routes</subtask>
+      <subtask id="6.6">Add global error handler to log errors and return appropriate HTTP status codes</subtask>
+      <subtask id="6.7">Start server on process.env.PORT (default 3001) with startup logs</subtask>
+    </task>
+    <task id="7" goal="Configure Render deployment (AC: 3.1)">
+      <subtask id="7.1">Create render.yaml for Monorepo deployment if not exists (or update existing)</subtask>
+      <subtask id="7.2">Add Gateway service configuration: name api-gateway, type Web Service, build command npm install, start command node apps/api-gateway/src/server.js</subtask>
+      <subtask id="7.3">Set environment variables in Render dashboard: AUTH0_AUDIENCE, AUTH0_ISSUER_BASE_URL, AUDITS_BE_URL, SCHEDULE_BE_URL</subtask>
+      <subtask id="7.4">Deploy to Render Staging environment</subtask>
+      <subtask id="7.5">Verify health endpoint accessible at https://gateway-url/api/v1/health</subtask>
+    </task>
+    <task id="8" goal="Testing and validation (ALL ACs)">
+      <subtask id="8.1">Unit test: Auth middleware with valid JWT - request passes, req.auth populated</subtask>
+      <subtask id="8.2">Unit test: Auth middleware with invalid JWT - 401 returned</subtask>
+      <subtask id="8.3">Unit test: Auth middleware with missing token - 401 returned</subtask>
+      <subtask id="8.4">Unit test: addUserContext middleware - x-user-id header added from req.auth.payload.sub</subtask>
+      <subtask id="8.5">Integration test: Call /api/v1/health - 200 OK without auth</subtask>
+      <subtask id="8.6">Integration test: Call /api/v1/audits/test with valid token - proxied to audits-be with headers (or 502 if backend not running yet - acceptable for Story 1.3)</subtask>
+      <subtask id="8.7">Integration test: Call /api/v1/schedule/test with valid token - proxied to schedule-be with headers (or 502 if backend not running yet - acceptable)</subtask>
+      <subtask id="8.8">Integration test: Call /api/v1/audits/test without token - 401 Unauthorized</subtask>
+      <subtask id="8.9">Manual test: Use Postman/curl to test Gateway endpoints with real Auth0 token from Shell login</subtask>
+      <subtask id="8.10">Performance test: Measure Gateway latency (should be less than 100ms for auth + proxy)</subtask>
+    </task>
+  </story_tasks>
+
+  <artifacts>
+    <docs>
+      <document>
+        <path>DOCS/brownfield-architecture.md</path>
+        <title>Brownfield Architecture Document</title>
+        <section>Section 5: Component Architecture</section>
+        <snippet>Gateway is single entry point for all API calls. Centralized Auth0 token validation. Routing requests to the correct backend (audits-be or schedule-be). Tech: Node.js, Express.js.</snippet>
+      </document>
+      <document>
+        <path>DOCS/brownfield-architecture.md</path>
+        <title>Brownfield Architecture Document</title>
+        <section>Section 11: Security</section>
+        <snippet>Gateway validates Auth0 JWT (signature, issuer, audience, expiration). Backends trust x-user-id header from Gateway. Backends are Private Services - only accessible from Gateway via private network.</snippet>
+      </document>
+      <document>
+        <path>DOCS/brownfield-architecture.md</path>
+        <title>Brownfield Architecture Document</title>
+        <section>Section 8: Infrastructure</section>
+        <snippet>Gateway deployed as Web Service on Render. Backends deployed as Private Services (not publicly accessible).</snippet>
+      </document>
+      <document>
+        <path>DOCS/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Detailed Design - Services</section>
+        <snippet>apps/api-gateway: Single API entry point. Auth0 JWT validation, request routing, user management APIs. Node.js, Express, Auth0 SDK.</snippet>
+      </document>
+      <document>
+        <path>DOCS/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>APIs and Interfaces - API Gateway Routes</section>
+        <snippet>All routes under /api/v1/* require auth (except /health). Validates Auth0 JWT, extracts sub claim, adds x-user-id header. Proxy to apps/audits-be or apps/schedule-be based on path.</snippet>
+      </document>
+      <document>
+        <path>DOCS/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Security - Token Validation</section>
+        <snippet>Validate JWT signature (RS256), issuer (Auth0 tenant), audience, expiration on every request. Backends do NOT validate tokens - they trust x-user-id header.</snippet>
+      </document>
+      <document>
+        <path>DOCS/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Non-Functional Requirements - Performance</section>
+        <snippet>Gateway target latency: less than 100ms added latency for auth validation + routing (p95).</snippet>
+      </document>
+      <document>
+        <path>DOCS/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Non-Functional Requirements - Observability</section>
+        <snippet>Gateway adds x-request-id header to all backend requests for end-to-end tracing.</snippet>
+      </document>
+      <document>
+        <path>DOCS/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Epic 1 - Story 1.3</section>
+        <snippet>API Gateway and Central Token Validation. Gateway includes middleware that validates Auth0 token on all requests. Returns 401 if token invalid.</snippet>
+      </document>
+      <document>
+        <path>DOCS/stories/1-2-shell-auth0-integration.md</path>
+        <title>Story 1.2: Shell Auth0 Integration</title>
+        <section>Dev Agent Record - Learnings</section>
+        <snippet>Auth0 tenant configured with custom claim namespace. Auth0 SDK pattern: Frontend uses @auth0/nextjs-auth0, Backend should use express-oauth2-jwt-bearer. Token format: JWT with iss, aud, exp, sub claims. Security best practices: HTTPS, httpOnly cookies, RS256 signature validation.</snippet>
+      </document>
+    </docs>
+
+    <code>
+      <artifact>
+        <path>apps/shell/app/api/auth/[auth0]/route.ts</path>
+        <kind>API route</kind>
+        <symbol>handleAuth</symbol>
+        <lines>1-3</lines>
+        <reason>Existing Auth0 integration in Shell - Gateway will validate tokens issued during this authentication flow</reason>
+      </artifact>
+      <artifact>
+        <path>apps/api-gateway/package.json</path>
+        <kind>package manifest</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>Gateway service already has package.json created in Story 1.1 (Monorepo scaffolding)</reason>
+      </artifact>
+      <artifact>
+        <path>apps/audits-be</path>
+        <kind>backend service</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>Target backend service for /api/v1/audits/* proxy routing (Story 1.4 will integrate)</reason>
+      </artifact>
+      <artifact>
+        <path>apps/schedule-be</path>
+        <kind>backend service</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>Target backend service for /api/v1/schedule/* proxy routing (Story 1.5 will integrate)</reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <ecosystem name="Node.js">
+        <package name="express" version="^4.19.0" scope="dependency">Core web framework for Gateway server</package>
+        <package name="express-oauth2-jwt-bearer" version="^1.6.0" scope="dependency">Auth0 JWT validation middleware for Express</package>
+        <package name="http-proxy-middleware" version="^3.0.0" scope="dependency">Proxy middleware to route requests to backend services</package>
+        <package name="uuid" version="^9.0.0" scope="dependency">Generate correlation IDs for request tracing</package>
+        <package name="cors" version="^2.8.5" scope="dependency">CORS middleware to allow Shell frontend requests</package>
+        <package name="next" version="^14.2.0" scope="reference">Used by Shell - Gateway receives tokens from Next.js Auth0 integration</package>
+        <package name="@auth0/nextjs-auth0" version="^3.5.0" scope="reference">Frontend Auth0 SDK used in Shell - Gateway validates tokens from this flow</package>
+        <package name="typescript" version="^5.4.0" scope="devDependency">Type definitions for Node.js development</package>
+        <package name="@types/node" version="^20.12.0" scope="devDependency">TypeScript types for Node.js</package>
+        <package name="@types/express" version="^4.17.0" scope="devDependency">TypeScript types for Express</package>
+        <package name="nodemon" version="^3.0.0" scope="devDependency">Hot reload for development</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface>
+      <name>Auth0 JWT Validation</name>
+      <kind>Express Middleware</kind>
+      <signature>
+const { auth } = require('express-oauth2-jwt-bearer');
+const jwtCheck = auth({
+  audience: process.env.AUTH0_AUDIENCE,
+  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+  tokenSigningAlg: 'RS256'
+});
+      </signature>
+      <path>apps/api-gateway/src/middleware/auth.js</path>
+    </interface>
+    <interface>
+      <name>User Context Middleware</name>
+      <kind>Express Middleware</kind>
+      <signature>
+const addUserContext = (req, res, next) =&gt; {
+  if (req.auth &amp;&amp; req.auth.payload &amp;&amp; req.auth.payload.sub) {
+    req.headers['x-user-id'] = req.auth.payload.sub;
+    req.userId = req.auth.payload.sub;
+  }
+  next();
+};
+      </signature>
+      <path>apps/api-gateway/src/middleware/addUserContext.js</path>
+    </interface>
+    <interface>
+      <name>Health Check Endpoint</name>
+      <kind>REST API</kind>
+      <signature>
+GET /api/v1/health
+Response: 200 OK
+{ status: 'ok', timestamp: ISO8601, version: string }
+      </signature>
+      <path>apps/api-gateway/src/routes/health.js</path>
+    </interface>
+    <interface>
+      <name>Audits Proxy Route</name>
+      <kind>REST API Proxy</kind>
+      <signature>
+GET/POST /api/v1/audits/*
+Headers: Authorization: Bearer &lt;jwt&gt;, x-request-id, x-user-id
+Proxies to: process.env.AUDITS_BE_URL
+      </signature>
+      <path>apps/api-gateway/src/routes/proxy.js</path>
+    </interface>
+    <interface>
+      <name>Schedule Proxy Route</name>
+      <kind>REST API Proxy</kind>
+      <signature>
+GET/POST /api/v1/schedule/*
+Headers: Authorization: Bearer &lt;jwt&gt;, x-request-id, x-user-id
+Proxies to: process.env.SCHEDULE_BE_URL
+      </signature>
+      <path>apps/api-gateway/src/routes/proxy.js</path>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint>Gateway must validate tokens on EVERY request (no caching for MVP)</constraint>
+    <constraint>Backends are Private Services - only accessible from Gateway, not public internet</constraint>
+    <constraint>Invalid or missing tokens return 401 (not 403) - standard HTTP auth error code</constraint>
+    <constraint>Gateway does not cache backend responses (Stories 1.4+ may add caching if needed)</constraint>
+    <constraint>Middleware order is critical: requestId, CORS, JSON parser, auth (except /health), addUserContext, routes</constraint>
+    <constraint>Health endpoint must NOT require authentication (public health check for Render monitoring)</constraint>
+    <constraint>Auth0 audience must match API Identifier in Auth0 dashboard exactly (case-sensitive)</constraint>
+    <constraint>Use RS256 algorithm for JWT signature validation (not HS256)</constraint>
+    <constraint>Extract sub claim from validated JWT and add as x-user-id header for backends</constraint>
+    <constraint>Add x-request-id header to all backend requests for end-to-end tracing</constraint>
+    <constraint>Proxy path rewriting: /api/v1/audits/* becomes /* when forwarded to audits-be</constraint>
+    <constraint>CORS must allow Shell domain (configure via ALLOWED_ORIGINS environment variable)</constraint>
+    <constraint>All secrets (Auth0, backend URLs) managed via Render Environment Variables - no hardcoded values</constraint>
+    <constraint>Gateway deployed as Web Service on Render with healthCheckPath: /api/v1/health</constraint>
+    <constraint>Target Gateway latency: less than 100ms added overhead (p95) for auth validation + proxy routing</constraint>
+  </constraints>
+
+  <tests>
+    <standards>
+      Unit tests using Vitest or Jest for middleware functions (auth, addUserContext, requestId). Integration tests for full Gateway request flow with mocked backends. Manual API testing with Postman or curl using real Auth0 tokens from Shell login. Performance testing to measure Gateway latency (target less than 100ms). No E2E tests needed for Story 1.3 - Gateway is backend service tested via API calls.
+    </standards>
+
+    <locations>
+      <location>apps/api-gateway/src/**/*.test.js</location>
+      <location>apps/api-gateway/tests/integration/*.test.js</location>
+    </locations>
+
+    <ideas>
+      <test_idea ac_id="AC3.1">
+        <description>Verify Gateway service starts successfully on configured port and logs startup message</description>
+      </test_idea>
+      <test_idea ac_id="AC3.2">
+        <description>Unit test: GET /api/v1/health returns 200 OK with { status: 'ok', timestamp, version } without requiring auth</description>
+      </test_idea>
+      <test_idea ac_id="AC3.3">
+        <description>Unit test: Auth middleware validates JWT signature (RS256), issuer, audience, expiration with valid token - request passes and req.auth populated</description>
+      </test_idea>
+      <test_idea ac_id="AC3.4">
+        <description>Unit tests for auth failures: Missing Authorization header returns 401, malformed token returns 401, invalid signature returns 401, wrong issuer returns 401, wrong audience returns 401, expired token returns 401</description>
+      </test_idea>
+      <test_idea ac_id="AC3.5">
+        <description>Unit test: addUserContext middleware extracts sub from req.auth.payload and adds x-user-id header to request</description>
+      </test_idea>
+      <test_idea ac_id="AC3.6">
+        <description>Integration test: GET /api/v1/audits/test with valid token proxies to audits-be URL with x-user-id and x-request-id headers (502 acceptable if backend not deployed)</description>
+      </test_idea>
+      <test_idea ac_id="AC3.7">
+        <description>Integration test: GET /api/v1/schedule/test with valid token proxies to schedule-be URL with headers (502 acceptable if backend not deployed)</description>
+      </test_idea>
+      <test_idea ac_id="AC3.3,AC3.4,AC3.6">
+        <description>Integration test: GET /api/v1/audits/test without Authorization header returns 401 Unauthorized (no proxy attempt)</description>
+      </test_idea>
+      <test_idea ac_id="ALL">
+        <description>Manual test: Use Postman or curl to test Gateway endpoints with real Auth0 token obtained from Shell login flow</description>
+      </test_idea>
+      <test_idea ac_id="NFR-Performance">
+        <description>Performance test: Measure Gateway latency for auth validation + proxy routing (target less than 100ms p95)</description>
+      </test_idea>
+    </ideas>
+  </tests>
+</story-context>

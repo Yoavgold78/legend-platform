@@ -1,6 +1,6 @@
 # Story 1.2: Shell Auth0 Integration
 
-Status: review
+Status: done
 
 ## Story
 
@@ -357,35 +357,36 @@ export const config = {
 - Shell reads roles from session and routes users to appropriate dashboard
 
 **Supported Roles:**
-- `admin` - System administrators (highest priority)
-- `store-manager` - Store managers (can manage multiple stores)
+- `admin` - System administrators (highest priority, full access to all apps)
+- `manager` - Store & schedule managers (can access BOTH AuditsApp manager dashboard AND ScheduleApp shifts)
 - `inspector` - Field inspectors (AuditsApp only)
-- `manager` - Schedule managers (ScheduleApp only)
 - `employee` - Regular employees (ScheduleApp only)
 - `store` - Store employees (tablet view, AuditsApp only)
 
 **Role → Route Mapping:**
 
 **AuditsApp:**
-- `admin` → `/auditapp/admin` (can also access `/auditapp/inspection`)
-- `store-manager` → `/auditapp/manager`
+- `admin` → `/auditapp/admin` (can also access `/auditapp/inspection` manually)
+- `manager` → `/auditapp/manager` (default landing, can switch to ScheduleApp via app switcher)
 - `inspector` → `/auditapp/inspection`
 - `store` → `/auditapp/share` (read-only store tablet view)
 
 **ScheduleApp:**
 - `admin` → `/scheduleapp/dashboard`
-- `manager` → `/scheduleapp/shifts`
+- `manager` → `/scheduleapp/shifts` (accessible via app switcher from AuditsApp)
 - `employee` → `/scheduleapp/employee-dashboard`
 
 **Priority Order (if user has multiple roles):**
 1. admin (top priority)
-2. store-manager
+2. manager (can access both AuditsApp manager AND ScheduleApp shifts)
 3. inspector
-4. manager
-5. employee
-6. store (lowest priority)
+4. employee
+5. store (lowest priority)
 
-**Note:** Users with `admin` role see admin dashboard first but can manually navigate to inspector dashboard. Other roles have exclusive access to their assigned dashboard only.
+**Multi-App Access:**
+- `admin` and `manager` roles can navigate between apps using app switcher (Story 1.5)
+- `manager` users land on `/auditapp/manager` by default, then can switch to `/scheduleapp/shifts`
+- Other roles have exclusive access to their assigned dashboard only
 
 **Implementation Status:**
 - ✅ Role-based routing logic implemented in `/dashboard` page
@@ -396,7 +397,7 @@ export const config = {
 
 **Auth0 Setup Required (User Action):**
 1. Log into Auth0 Dashboard → User Management → Roles
-2. Create roles: admin, store-manager, inspector, manager, employee, store
+2. Create 5 roles: admin, manager, inspector, employee, store
 3. Configure Auth0 Action (Login flow) to add custom claim:
    ```javascript
    exports.onExecutePostLogin = async (event, api) => {
@@ -493,3 +494,4 @@ GitHub Copilot (Claude 3.5 Sonnet)
 | 2025-10-29 | Bob (SM) | Initial story draft created      |
 | 2025-10-29 | Amelia (Dev) | Implemented all 7 tasks - Complete Next.js Shell with Auth0 integration, protected routes, Mobile-First UI - Ready for review |
 | 2025-10-30 | John (PM) | Added Auth0 role-based routing architecture - Dashboard now routes users based on Auth0 roles (admin, store-manager, inspector, manager, employee, store) with priority order - Routes map to /auditapp/* and /scheduleapp/* (implemented in Stories 1.4, 1.6) |
+| 2025-10-31 | John (PM) | Consolidated manager roles - Removed store-manager role, using single 'manager' role for both AuditsApp manager dashboard AND ScheduleApp shifts (managers can navigate between apps via app switcher) - Total 5 roles: admin, manager, inspector, employee, store |

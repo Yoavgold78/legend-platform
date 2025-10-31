@@ -9,25 +9,25 @@ import { redirect } from 'next/navigation';
  * 
  * Role Priority (if user has multiple roles):
  * 1. admin (highest priority)
- * 2. store-manager
+ * 2. manager (can access both AuditsApp manager dashboard AND ScheduleApp shifts)
  * 3. inspector
- * 4. manager
- * 5. employee
- * 6. store (lowest priority)
+ * 4. employee
+ * 5. store (lowest priority)
  * 
  * Role → Route Mapping:
  * AuditsApp:
  *   - admin → /auditapp/admin
- *   - store-manager → /auditapp/manager
+ *   - manager → /auditapp/manager (default landing, can also access /scheduleapp/shifts)
  *   - inspector → /auditapp/inspection
  *   - store → /auditapp/share (store tablet view)
  * 
  * ScheduleApp:
  *   - admin → /scheduleapp/dashboard
- *   - manager → /scheduleapp/shifts
+ *   - manager → /scheduleapp/shifts (can navigate here from AuditsApp)
  *   - employee → /scheduleapp/employee-dashboard
  * 
- * Note: Routes /auditapp/* and /scheduleapp/* will be implemented in Stories 1.4 and 1.6
+ * Note: Managers have access to both apps and can switch between them using app switcher.
+ *       Routes /auditapp/* and /scheduleapp/* will be implemented in Stories 1.4 and 1.6.
  */
 
 export default async function Dashboard() {
@@ -42,24 +42,28 @@ export default async function Dashboard() {
   // Extract roles from Auth0 custom claim
   // Format: user['https://legend-platform.com/roles'] = ['admin', 'inspector']
   const roles: string[] = user['https://legend-platform.com/roles'] || [];
+  
+  // Normalize roles to lowercase for case-insensitive matching
+  const normalizedRoles = roles.map(role => role.toLowerCase());
 
   // Role-based routing with priority order
-  if (roles.includes('admin')) {
+  if (normalizedRoles.includes('admin')) {
     // Admin users go to AuditsApp admin dashboard (can also access inspector dashboard manually)
     redirect('/auditapp/admin');
-  } else if (roles.includes('store-manager')) {
-    // Store managers go to AuditsApp manager dashboard
+  } else if (normalizedRoles.includes('manager')) {
+    // Managers go to AuditsApp manager dashboard by default
+    // They can navigate to ScheduleApp shifts using app switcher (Story 1.5)
+    // Manager has access to BOTH:
+    //   - /auditapp/manager (store audits management)
+    //   - /scheduleapp/shifts (employee scheduling)
     redirect('/auditapp/manager');
-  } else if (roles.includes('inspector')) {
+  } else if (normalizedRoles.includes('inspector')) {
     // Inspectors go to AuditsApp inspection dashboard
     redirect('/auditapp/inspection');
-  } else if (roles.includes('manager')) {
-    // Managers (Schedule) go to ScheduleApp shifts page
-    redirect('/scheduleapp/shifts');
-  } else if (roles.includes('employee')) {
+  } else if (normalizedRoles.includes('employee')) {
     // Employees go to ScheduleApp employee dashboard
     redirect('/scheduleapp/employee-dashboard');
-  } else if (roles.includes('store')) {
+  } else if (normalizedRoles.includes('store')) {
     // Store employees go to AuditsApp shared view (tablet)
     redirect('/auditapp/share');
   } else {
@@ -77,6 +81,9 @@ export default async function Dashboard() {
             </p>
             <p className="text-sm text-gray-600 mt-2">
               <strong>Assigned Roles:</strong> {roles.length > 0 ? roles.join(', ') : 'None'}
+            </p>
+            <p className="text-sm text-gray-500 mt-2 italic">
+              Note: Role names in Auth0 are case-sensitive. Expected: admin, manager, inspector, employee, store (all lowercase)
             </p>
           </div>
         </div>
