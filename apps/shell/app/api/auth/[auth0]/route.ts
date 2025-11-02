@@ -1,4 +1,4 @@
-import { handleAuth, handleLogin, handleLogout } from '@auth0/nextjs-auth0';
+import { handleAuth, handleLogin, handleLogout, handleCallback } from '@auth0/nextjs-auth0';
 
 export const GET = handleAuth({
   login: handleLogin({
@@ -9,6 +9,9 @@ export const GET = handleAuth({
       // Set NEXT_PUBLIC_AUTH0_PROMPT=login to enable during debugging
       ...(process.env.NEXT_PUBLIC_AUTH0_PROMPT === 'login' ? { prompt: 'login' } : {}),
     },
+  }),
+  callback: handleCallback({
+    redirectUri: process.env.AUTH0_BASE_URL ? `${process.env.AUTH0_BASE_URL}/api/auth/callback` : undefined,
   }),
   // Ensure logout clears the Auth0 session and returns to the app base URL
   logout: handleLogout({
