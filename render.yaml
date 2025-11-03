@@ -61,6 +61,27 @@ services:
       - key: PORT
         value: 5000
 
+  # AuditsApp Frontend - Web Service (Story 1.4)
+  - type: web
+    name: audits-fe
+    env: node
+    buildCommand: npm install && cd apps/audits-fe && npm run build
+    startCommand: cd apps/audits-fe && npm start
+    envVars:
+      - key: AUTH0_SECRET
+        generateValue: true
+      - key: AUTH0_BASE_URL
+        sync: false  # Set to audits-fe URL
+      - key: AUTH0_ISSUER_BASE_URL
+        sync: false  # Same Auth0 tenant as Shell
+      - key: AUTH0_CLIENT_ID
+        sync: false  # Can be same or different Auth0 app
+      - key: AUTH0_CLIENT_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_API_URL
+        sync: false  # Set to API Gateway URL
+    healthCheckPath: /
+
   # Placeholder for schedule-be (Story 1.5)
   # - type: pserv
   #   name: schedule-be

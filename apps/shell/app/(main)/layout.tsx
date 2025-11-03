@@ -55,6 +55,25 @@ export default function MainLayout({
             </div>
           </div>
         </div>
+        {/* Navigation Bar */}
+        <nav className="bg-gray-800 border-t border-gray-700">
+          <div className="container mx-auto px-4">
+            <div className="flex gap-1">
+              <Link
+                href="/dashboard"
+                className="px-4 py-3 hover:bg-gray-700 transition-colors text-sm md:text-base font-medium"
+              >
+                🏠 Dashboard
+              </Link>
+              <Link
+                href="/audits"
+                className="px-4 py-3 hover:bg-gray-700 transition-colors text-sm md:text-base font-medium"
+              >
+                📋 Audits
+              </Link>
+            </div>
+          </div>
+        </nav>
       </header>
       <main className="container mx-auto px-4 py-8">
         {children}

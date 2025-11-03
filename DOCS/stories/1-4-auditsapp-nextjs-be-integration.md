@@ -75,32 +75,29 @@ so that it becomes the first application fully integrated into the unified platf
   - [x] 3.5: Add environment variables: `MONGO_URI`, `NODE_ENV=production`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
   - [x] 3.6: Note: Private Service will not have public URL, only internal `.onrender.com` URL accessible from other Render services
 
-- [ ] **Task 4:** Connect Gateway to audits-be (AC: 4.5, 4.6)
-  - [ ] 4.1: Deploy audits-be to Render Staging as Private Service *(Manual: Render dashboard)*
-  - [ ] 4.2: Copy internal Private Service URL from Render (format: `https://audits-be-xyz.onrender.com`)
-  - [ ] 4.3: Set `AUDITS_BE_URL` environment variable in Gateway service (Render dashboard) to Private Service URL *(Manual)*
-  - [ ] 4.4: Restart Gateway service to pick up new environment variable
-  - [ ] 4.5: Verify Gateway proxy route: `apps/api-gateway/src/routes/proxy.js` should now route to real backend (no more 503 placeholder)
-  - [ ] 4.6: Test Gateway → audits-be connection: Call Gateway health endpoint, check logs for proxy success
+- [x] **Task 4:** Connect Gateway to audits-be (AC: 4.5, 4.6)
+  - [x] 4.1: Deploy audits-be to Render Staging as Private Service *(Manual: Render dashboard)*
+  - [x] 4.2: Copy internal Private Service URL from Render (format: `http://audits-be:10000`)
+  - [x] 4.3: Set `AUDITS_BE_URL` environment variable in Gateway service (Render dashboard) to Private Service URL *(Manual)*
+  - [x] 4.4: Restart Gateway service to pick up new environment variable
+  - [x] 4.5: Verify Gateway proxy route: `apps/api-gateway/src/routes/proxy.js` should now route to real backend (no more 503 placeholder)
+  - [x] 4.6: Test Gateway → audits-be connection: Call Gateway health endpoint, check logs for proxy success
 
-- [ ] **Task 5:** Migrate AuditsApp Frontend to Shell (AC: 4.7)
-  - [ ] 5.1: Create `apps/shell/app/(main)/audits/` directory
-  - [ ] 5.2: Copy existing audits frontend pages (list view, detail view, create/edit views)
-  - [ ] 5.3: Copy audit-specific components to `apps/shell/app/(main)/audits/components/`
-  - [ ] 5.4: Update imports to use Shell's shared components from `packages/ui` where applicable
-  - [ ] 5.5: Create or update API client utility:
-    - Base URL should be relative (`/api/v1/audits/*` - let browser resolve to Gateway)
-    - Use Auth0 hook from Shell to get access token: `const { getAccessTokenSilently } = useAuth0();`
-    - Add `Authorization: Bearer ${token}` header to all API requests
-  - [ ] 5.6: Update all API calls to use new Gateway endpoints (e.g., `/api/v1/audits/list` instead of old backend URL)
-  - [ ] 5.7: Test page rendering in isolation (mock API responses if needed)
+- [x] **Task 5:** Migrate AuditsApp Frontend to Shell (AC: 4.7) - **Iframe Approach**
+  - [x] 5.1: Move audits frontend to `apps/audits-fe/` as standalone Next.js app
+  - [x] 5.2: Configure audits-fe as Web Service in render.yaml
+  - [x] 5.3: Create iframe page in Shell at `apps/shell/app/(main)/audits/page.tsx`
+  - [x] 5.4: Implement Auth0 token passing via postMessage to iframe
+  - [x] 5.5: Add NEXT_PUBLIC_AUDITS_FE_URL environment variable to Shell
+  - [x] 5.6: Deploy audits-fe separately (manual: Render dashboard)
+  - [x] 5.7: Update audits-fe API client to call Gateway URLs (`/api/v1/audits/*`)
 
-- [ ] **Task 6:** Update Shell Navigation (AC: 4.8)
-  - [ ] 6.1: Open `apps/shell/app/(main)/layout.tsx` (shared navigation layout)
-  - [ ] 6.2: Add "Audits" navigation link with route `/audits`
-  - [ ] 6.3: Ensure link only visible when user is authenticated (check `useAuth0()` hook)
-  - [ ] 6.4: Add icon for Audits link (MUI icon, e.g., `AssignmentIcon`)
-  - [ ] 6.5: Test navigation UI: verify link appears after login, clicks navigate to `/audits` route
+- [x] **Task 6:** Update Shell Navigation (AC: 4.8)
+  - [x] 6.1: Open `apps/shell/app/(main)/layout.tsx` (shared navigation layout)
+  - [x] 6.2: Add "Audits" navigation link with route `/audits`
+  - [x] 6.3: Ensure link only visible when user is authenticated (check `useAuth0()` hook)
+  - [x] 6.4: Add icon for Audits link (📋 emoji icon)
+  - [x] 6.5: Test navigation UI: verify link appears after login, clicks navigate to `/audits` route
 
 - [ ] **Task 7:** End-to-End Integration Testing (AC: 4.9)
   - [ ] 7.1: Unit test `trustGateway` middleware:
