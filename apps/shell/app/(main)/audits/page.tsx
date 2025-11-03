@@ -59,6 +59,21 @@ export default function AuditsPage() {
     );
   }
 
+  // If audits-fe URL is not configured, show placeholder
+  if (!process.env.NEXT_PUBLIC_AUDITS_FE_URL) {
+    return (
+      <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" minHeight="80vh" gap={2}>
+        <Typography variant="h4">🚧 Audits App</Typography>
+        <Typography variant="body1" color="text.secondary">
+          The Audits application is being deployed. Please check back soon.
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          (Environment variable NEXT_PUBLIC_AUDITS_FE_URL not configured)
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ width: '100%', height: 'calc(100vh - 64px)', position: 'relative' }}>
       {!iframeLoaded && (
