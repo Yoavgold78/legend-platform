@@ -1,25 +1,30 @@
 {
   "name": "audits-be",
   "version": "1.0.0",
-  "private": true,
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/index.js",
-    "build": "echo 'No build needed for Node.js'",
-    "start": "node src/index.js",
-    "lint": "eslint . --no-error-on-unmatched-pattern || echo 'No files to lint'"
+    "start": "node -r dotenv/config index.js",
+    "build": "npm install && npm install --arch=x64 --platform=linux sharp",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "AuditsApp backend service - integrated into monorepo",
   "dependencies": {
-    "@legend/types": "*",
-    "express": "^4.19.0",
-    "mongoose": "^8.3.0",
+    "@legend/types": "workspace:*",
+    "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.2.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.0"
-  },
-  "devDependencies": {
-    "@legend/config": "*",
-    "@types/express": "^4.17.21",
-    "@types/cors": "^2.8.17",
-    "typescript": "^5.4.0"
+    "dotenv": "^17.0.1",
+    "express": "^4.19.2",
+    "express-async-handler": "^1.2.0",
+    "mongoose": "^8.16.1",
+    "multer": "^1.4.5-lts.1",
+    "pdfkit": "^0.15.0",
+    "puppeteer": "^23.7.0",
+    "sharp": "^0.33.4",
+    "web-push": "^3.6.7"
   }
 }

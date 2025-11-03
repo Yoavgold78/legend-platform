@@ -39,12 +39,27 @@ services:
         sync: false  # Set to Shell production URL
     healthCheckPath: /api/v1/health
 
-  # Placeholder for audits-be (Story 1.4)
-  # - type: pserv
-  #   name: audits-be
-  #   env: node
-  #   buildCommand: npm install
-  #   startCommand: node apps/audits-be/src/server.js
+  # AuditsApp Backend - Private Service (Story 1.4)
+  - type: pserv
+    name: audits-be
+    env: node
+    buildCommand: npm install && npm install --arch=x64 --platform=linux sharp
+    startCommand: node apps/audits-be/index.js
+    envVars:
+      - key: MONGO_URI
+        sync: false  # Set manually in Render dashboard - MongoDB Atlas connection string
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false  # Cloudinary configuration
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 5000
 
   # Placeholder for schedule-be (Story 1.5)
   # - type: pserv

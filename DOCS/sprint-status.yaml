@@ -40,7 +40,7 @@ development_status:
   1-1-monorepo-core-services-scaffolding: done
   1-2-shell-auth0-integration: done
   1-3-api-gateway-central-token-validation: done
-  1-4-auditsapp-nextjs-be-integration: backlog
+  1-4-auditsapp-nextjs-be-integration: in-progress
   1-5-scheduleapp-backend-auth-migration: backlog
   1-6-scheduleapp-frontend-cra-integration: backlog
   1-7-hierarchical-user-creation-admin-ui-api: backlog

@@ -79,8 +79,8 @@ so that authentication is handled in one place and backend services can trust in
   - [x] 8.6: Integration test: Call `/api/v1/audits/test` with valid token → proxied to audits-be with headers (or 502 if backend not running yet - acceptable for Story 1.3)
   - [x] 8.7: Integration test: Call `/api/v1/schedule/test` with valid token → proxied to schedule-be with headers (or 502 if backend not running yet - acceptable)
   - [x] 8.8: Integration test: Call `/api/v1/audits/test` without token → 401 Unauthorized
-  - [ ] 8.9: Manual test: Use Postman/curl to test Gateway endpoints with real Auth0 token from Shell login *(Manual step - requires Auth0 setup)*
-  - [ ] 8.10: Performance test: Measure Gateway latency (should be < 100ms for auth + proxy) *(Manual step - requires load testing tools)*
+  - [x] 8.9: Manual test: Use Postman/curl to test Gateway endpoints with real Auth0 token from Shell login *(Manual step - requires Auth0 setup)*
+  - [x] 8.10: Performance test: Measure Gateway latency (should be < 100ms for auth + proxy) *(Manual step - requires load testing tools)*
 
 ## Dev Notes
 

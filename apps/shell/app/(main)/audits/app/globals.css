@@ -1,0 +1,103 @@
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Global RTL and Hebrew font */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;600;700&display=swap');
+
+html[dir='rtl'], body[dir='rtl'] {
+  direction: rtl;
+  unicode-bidi: bidi-override;
+  text-align: start;
+}
+
+html, body {
+  font-family: 'Noto Sans Hebrew', 'Heebo', 'Segoe UI', Tahoma, Arial, sans-serif;
+}
+
+/* Print styles to make PDF look like the on-screen report */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: white !important;
+  }
+
+  /* Hide elements explicitly marked as not for print */
+  [data-print-hide] { display: none !important; }
+
+  /* Constrain content to A4 width and remove outer background */
+  .print-a4 {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 16px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  /* Avoid awkward page breaks inside cards/sections */
+  .MuiPaper-root, .MuiCard-root, .MuiBox-root { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Ensure primary backgrounds render in PDF */
+  .MuiDivider-root { background-color: #e0e0e0 !important; }
+}
+
+/* Force logical alignment for all MUI components in RTL */
+[dir='rtl'] .MuiCard-root,
+[dir='rtl'] .MuiPaper-root,
+[dir='rtl'] .MuiCardContent-root,
+[dir='rtl'] .MuiGrid-root,
+[dir='rtl'] .MuiBox-root,
+[dir='rtl'] .MuiTypography-root,
+[dir='rtl'] .MuiButton-root,
+[dir='rtl'] .MuiInputBase-root {
+  text-align: start !important;
+}
+
+/* Ensure table cells use logical alignment */
+[dir='rtl'] .MuiTableCell-root {
+  text-align: start !important;
+}
+
+/* Force RTL layout direction on flex containers */
+[dir='rtl'] .MuiBox-root,
+[dir='rtl'] .MuiGrid-root,
+[dir='rtl'] .MuiStack-root {
+  direction: rtl;
+}
+
+/* Ensure form inputs and text fields align correctly */
+[dir='rtl'] .MuiInputBase-root input,
+[dir='rtl'] .MuiInputBase-root textarea,
+[dir='rtl'] .MuiTextField-root input,
+[dir='rtl'] .MuiTextField-root textarea {
+  text-align: start !important;
+  direction: rtl;
+}
+
+/* Dialog and modal content alignment */
+[dir='rtl'] .MuiDialogContent-root,
+[dir='rtl'] .MuiDialogTitle-root {
+  text-align: start !important;
+}
+
+/* List items and menu items */
+[dir='rtl'] .MuiMenuItem-root,
+[dir='rtl'] .MuiListItem-root,
+[dir='rtl'] .MuiListItemText-root {
+  text-align: start !important;
+}
