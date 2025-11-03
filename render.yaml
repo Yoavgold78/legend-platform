@@ -43,7 +43,7 @@ services:
   - type: pserv
     name: audits-be
     env: node
-    buildCommand: npm install && npm install --arch=x64 --platform=linux sharp
+    buildCommand: npm install && cd apps/audits-be && npm install --arch=x64 --platform=linux sharp
     startCommand: node apps/audits-be/index.js
     envVars:
       - key: MONGO_URI
