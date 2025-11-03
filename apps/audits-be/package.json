@@ -13,7 +13,7 @@
   "license": "ISC",
   "description": "AuditsApp backend service - integrated into monorepo",
   "dependencies": {
-    "@legend/types": "workspace:*",
+    "@legend/types": "*",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.2.0",
     "cors": "^2.8.5",

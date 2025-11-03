@@ -3,7 +3,7 @@ services:
   - type: web
     name: shell
     env: node
-    buildCommand: npm install && cd apps/shell && npm run build
+    buildCommand: npm install && npm run build --workspace=apps/shell
     startCommand: cd apps/shell && npm start
     envVars:
       - key: AUTH0_SECRET
@@ -23,7 +23,7 @@ services:
     name: api-gateway
     env: node
     buildCommand: npm install
-    startCommand: node apps/api-gateway/src/server.js
+    startCommand: cd apps/api-gateway && node src/server.js
     envVars:
       - key: AUTH0_AUDIENCE
         value: https://api.legend-platform.com
@@ -44,7 +44,7 @@ services:
     name: audits-be
     env: node
     buildCommand: npm install && cd apps/audits-be && npm install --arch=x64 --platform=linux sharp
-    startCommand: node apps/audits-be/index.js
+    startCommand: cd apps/audits-be && node index.js
     envVars:
       - key: MONGO_URI
         sync: false  # Set manually in Render dashboard - MongoDB Atlas connection string
