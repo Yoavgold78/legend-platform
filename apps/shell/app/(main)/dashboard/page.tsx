@@ -48,24 +48,21 @@ export default async function Dashboard() {
 
   // Role-based routing with priority order
   if (normalizedRoles.includes('admin')) {
-    // Admin users go to AuditsApp admin dashboard (can also access inspector dashboard manually)
-    redirect('/auditapp/admin');
+    // Admin users go to AuditsApp (Story 1.4 - iframe integration)
+    redirect('/audits');
   } else if (normalizedRoles.includes('manager')) {
-    // Managers go to AuditsApp manager dashboard by default
+    // Managers go to AuditsApp by default (Story 1.4 - iframe integration)
     // They can navigate to ScheduleApp shifts using app switcher (Story 1.5)
-    // Manager has access to BOTH:
-    //   - /auditapp/manager (store audits management)
-    //   - /scheduleapp/shifts (employee scheduling)
-    redirect('/auditapp/manager');
+    redirect('/audits');
   } else if (normalizedRoles.includes('inspector')) {
-    // Inspectors go to AuditsApp inspection dashboard
-    redirect('/auditapp/inspection');
+    // Inspectors go to AuditsApp (Story 1.4 - iframe integration)
+    redirect('/audits');
   } else if (normalizedRoles.includes('employee')) {
-    // Employees go to ScheduleApp employee dashboard
+    // Employees go to ScheduleApp employee dashboard (Story 1.6 - not yet implemented)
     redirect('/scheduleapp/employee-dashboard');
   } else if (normalizedRoles.includes('store')) {
-    // Store employees go to AuditsApp shared view (tablet)
-    redirect('/auditapp/share');
+    // Store employees go to AuditsApp (Story 1.4 - iframe integration)
+    redirect('/audits');
   } else {
     // Fallback: No recognized roles - show error page
     return (

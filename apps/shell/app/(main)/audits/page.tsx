@@ -15,7 +15,11 @@ export default function AuditsPage() {
   const [iframeLoaded, setIframeLoaded] = useState(false);
   
   // Audits frontend URL (set via environment variable)
-  const auditsAppUrl = process.env.NEXT_PUBLIC_AUDITS_FE_URL || 'http://localhost:3001';
+  const auditsAppBaseUrl = process.env.NEXT_PUBLIC_AUDITS_FE_URL || 'http://localhost:3001';
+  
+  // Determine the specific route based on user role
+  // Default to admin dashboard for now
+  const auditsAppUrl = `${auditsAppBaseUrl}/admin/dashboard`;
 
   useEffect(() => {
     if (!user || !iframeLoaded) return;
@@ -34,10 +38,10 @@ export default function AuditsPage() {
             // Add other user properties as needed
           },
         },
-        auditsAppUrl
+        auditsAppBaseUrl
       );
     }
-  }, [user, iframeLoaded, auditsAppUrl]);
+  }, [user, iframeLoaded, auditsAppBaseUrl]);
 
   if (isLoading) {
     return (
