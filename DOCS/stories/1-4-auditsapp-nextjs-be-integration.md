@@ -129,9 +129,9 @@ so that it becomes the first application fully integrated into the unified platf
 - [ ] **Task 8:** Update Documentation and Deploy (AC: 4.1-4.9)
   - [x] 8.1: Update `apps/audits-be/README.md` with setup instructions, environment variables, Gateway trust pattern
   - [x] 8.2: Update root `README.md` to document audits-be service (Created comprehensive README with monorepo overview, services documentation, architecture patterns, setup instructions, deployment info)
-  - [ ] 8.3: Commit all changes to Monorepo
-  - [ ] 8.4: Deploy to Render Staging: audits-be (Private), Gateway (with AUDITS_BE_URL), Shell (with audits routes)
-  - [ ] 8.5: Run full E2E test suite in Staging
+  - [x] 8.3: Commit all changes to Monorepo (Committed and pushed tests, documentation, Vitest config)
+  - [x] 8.4: Deploy to Render Staging: audits-be (Private ✅), Gateway (with AUDITS_BE_URL ✅), Shell (with audits routes ✅)
+  - [ ] 8.5: Run full E2E test suite in Staging (BLOCKED: awaiting audits-fe deployment)
   - [ ] 8.6: Document rollback plan (revert DNS, redeploy old audits app if needed)
 
 ## Dev Notes
@@ -326,7 +326,68 @@ GitHub Copilot (GPT-4 based)
 
 ### Completion Notes List
 
+#### Session 2024-11-03: Testing & Documentation Phase
+
+**What's Complete:**
+- ✅ Backend fully migrated and deployed (audits-be as Private Service on Render)
+- ✅ Authentication refactored to trustGateway pattern (Gateway validates tokens, backend trusts x-user-id header)
+- ✅ Gateway connected to audits-be (AUDITS_BE_URL configured, proxy working)
+- ✅ Frontend structure created (apps/audits-fe/ with iframe approach)
+- ✅ Shell navigation updated with Audits link
+- ✅ Dashboard routing fixed (all roles redirect to /audits)
+- ✅ Manual E2E testing passed (Shell login → Audits → placeholder displayed, backend integration confirmed)
+- ✅ **30 automated tests passing:**
+  - 17 unit tests for trustGateway middleware (x-user-id extraction, auth0Id queries, admin authorization, error handling)
+  - 13 integration tests for routes (Gateway trust pattern, HTTP requests, concurrent users)
+- ✅ Root README.md created with comprehensive monorepo documentation
+- ✅ Vitest configured with code coverage
+- ✅ All changes committed and pushed to GitHub
+
+**What's Pending:**
+- ⏳ Task 7.4: Error scenario testing (can test some, but full E2E needs audits-fe deployed)
+- ⏳ Task 8.5: Full E2E test suite in Staging (BLOCKED by audits-fe deployment)
+- ⏳ Task 8.6: Rollback plan documentation
+- 🚫 **BLOCKER:** audits-fe must be manually deployed on Render before story can be marked complete
+
+**Manual Deployment Required:**
+1. Deploy audits-fe as Web Service on Render (via Render dashboard)
+2. Copy audits-fe public URL
+3. Set NEXT_PUBLIC_AUDITS_FE_URL in Shell environment variables (Render dashboard)
+4. Restart Shell to pick up audits-fe URL
+5. Run full E2E test: Login → Audits → Verify iframe loads audits-fe → Verify API calls work → Verify audit data displays
+
+**Test Results:**
+```
+Test Files  2 passed (2)
+Tests  30 passed (30)
+  - Unit Tests: 17/17 passing
+  - Integration Tests: 13/13 passing
+Duration: 620ms
+```
+
+**Architecture Validated:**
+- Gateway Trust Pattern working correctly (x-user-id header trusted, no direct token validation in backend)
+- Private Service deployment working (audits-be only accessible from Gateway)
+- User identity linking via auth0Id field working (MongoDB queries successful)
+- Admin middleware authorization working (role-based access control)
+- Error handling working (401 for missing user, 403 for non-admin)
+
+**Next Steps:**
+1. User deploys audits-fe on Render (manual step)
+2. Configure Shell with audits-fe URL
+3. Run E2E test suite
+4. Document rollback plan
+5. Mark story complete
+
 ### File List
+
+**Created/Modified Files:**
+- `README.md` - Root monorepo documentation (NEW)
+- `apps/audits-be/tests/unit/trustGateway.test.js` - 17 unit tests (NEW)
+- `apps/audits-be/tests/integration/routes.test.js` - 13 integration tests (NEW)
+- `apps/audits-be/vitest.config.js` - Vitest configuration (NEW)
+- `apps/audits-be/package.json` - Added Vitest, supertest, test scripts
+- `DOCS/stories/1-4-auditsapp-nextjs-be-integration.md` - Updated task tracking
 
 ---
 
