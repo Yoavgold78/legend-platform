@@ -16,6 +16,8 @@ services:
         sync: false
       - key: AUTH0_CLIENT_SECRET
         sync: false
+      - key: NEXT_PUBLIC_AUDITS_FE_URL
+        sync: false  # Set to audits-fe URL after Story 1.4
     healthCheckPath: /
 
   # API Gateway - Central Token Validation (Story 1.3)
