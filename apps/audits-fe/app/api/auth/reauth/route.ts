@@ -4,7 +4,7 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
-  const session = await getSession(req, new NextResponse());
+  const session = await getSession();
   
   if (!session || !session.user) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
