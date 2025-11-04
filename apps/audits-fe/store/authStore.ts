@@ -24,6 +24,8 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  iframeToken: string | null;
+  setIframeToken: (token: string) => void;
   fetchUser: () => Promise<void>;
   logoutUser: () => void;
 }
@@ -34,6 +36,17 @@ const useAuthStore = create<AuthState>()(
     isAuthenticated: false,
     isLoading: true,
     error: null,
+    iframeToken: null,
+
+    /**
+     * Set token received from parent frame
+     */
+    setIframeToken: (token: string) => {
+      console.log('✅ Token received from parent frame');
+      set({ iframeToken: token });
+      // Trigger user fetch with new token
+      get().fetchUser();
+    },
 
     /**
      * פונקציה זו פונה לנקודת הקצה שלנו /api/auth/me
@@ -48,7 +61,15 @@ const useAuthStore = create<AuthState>()(
       set({ isLoading: true, error: null });
 
       try {
-        const res = await fetch('/api/auth/me');
+        const token = get().iframeToken;
+        const headers: HeadersInit = {};
+        
+        // If we have a token from parent frame, use it
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const res = await fetch('/api/auth/me', { headers });
 
         if (res.status === 401) {
           set({ user: null, isAuthenticated: false, isLoading: false });

@@ -10,6 +10,7 @@ import { SnackbarProvider } from '../context/SnackbarContext';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
 import useAuthStore from '@/store/authStore'; // מייבאים את ה-Store שלנו
 import { NotificationsProvider } from '@/context/NotificationsProvider'; // --- 1. הוספנו את ה-import ---
+import IframeAuthProvider from '@/components/IframeAuthProvider';
 
 export default function RootLayout({
   children,
@@ -41,6 +42,7 @@ export default function RootLayout({
             <SnackbarProvider>
               {/* --- 2. עטפנו את הילדים ב-Provider החדש --- */}
               <NotificationsProvider>
+                <IframeAuthProvider />
                 <CssBaseline />
                 {children}
               </NotificationsProvider>

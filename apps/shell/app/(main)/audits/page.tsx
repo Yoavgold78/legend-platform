@@ -41,6 +41,34 @@ export default function AuditsPage() {
         auditsAppBaseUrl
       );
     }
+
+    // Listen for token requests from iframe
+    const handleMessage = async (event: MessageEvent) => {
+      // Verify it's from audits-fe
+      if (event.origin !== auditsAppBaseUrl) return;
+
+      if (event.data?.type === 'REQUEST_TOKEN' || event.data?.type === 'REQUEST_AUTH') {
+        // Fetch access token from our API
+        try {
+          const tokenResponse = await fetch('/api/auth/token');
+          if (tokenResponse.ok) {
+            const { accessToken } = await tokenResponse.json();
+            iframe.contentWindow?.postMessage(
+              {
+                type: 'TOKEN_RESPONSE',
+                token: accessToken,
+              },
+              auditsAppBaseUrl
+            );
+          }
+        } catch (error) {
+          console.error('Failed to get token for iframe:', error);
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, [user, iframeLoaded, auditsAppBaseUrl]);
 
   if (isLoading) {
