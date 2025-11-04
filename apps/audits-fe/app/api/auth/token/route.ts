@@ -1,23 +1,17 @@
-import { getAccessToken } from '@auth0/nextjs-auth0';
-import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@auth0/nextjs-auth0';
+import { NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const audience = process.env.AUTH0_AUDIENCE || 'https://audits-api.legenda.co.il';
-    const scope = 'openid profile email';
-
-    const { accessToken } = await getAccessToken(req, NextResponse.next(), {
-      scopes: scope.split(' '),
-      authorizationParams: { audience, scope },
-    });
-
-    const rawToken = accessToken?.startsWith('Bearer ')
-      ? accessToken.slice('Bearer '.length)
-      : accessToken;
-
-    if (!rawToken) {
+    const session = await getSession();
+    
+    if (!session || !session.accessToken) {
       return NextResponse.json({ error: 'No access token available' }, { status: 401 });
     }
+
+    const rawToken = session.accessToken.startsWith('Bearer ')
+      ? session.accessToken.slice('Bearer '.length)
+      : session.accessToken;
 
     return NextResponse.json({ accessToken: rawToken });
   } catch (error: any) {
