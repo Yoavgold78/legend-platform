@@ -9,6 +9,13 @@ const withPWA = nextPWA({
  
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Skip static optimization for routes that need runtime data
+  experimental: {
+    // Disable static page generation for dynamic routes
+    appDir: true,
+  },
+  // Output standalone for better deployment
+  output: 'standalone',
   async headers() {
     return [
       {
