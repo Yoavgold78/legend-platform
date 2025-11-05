@@ -19,7 +19,7 @@ export interface AppUser {
 }
 
 // הגדרת מבנה ה-State של ה-Store
-interface AuthState {
+export interface AuthState {
   user: AppUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -30,8 +30,15 @@ interface AuthState {
   logoutUser: () => void;
 }
 
+// Minimal local typing helpers to avoid implicit any without importing types
+type SetState<T> = (
+  partial: Partial<T> | ((state: T) => Partial<T>),
+  replace?: boolean
+) => void;
+type GetState<T> = () => T;
+
 const useAuthStore = create<AuthState>()(
-  devtools((set, get) => ({
+  devtools<AuthState>((set: SetState<AuthState>, get: GetState<AuthState>) => ({
     user: null,
     isAuthenticated: false,
     isLoading: true,

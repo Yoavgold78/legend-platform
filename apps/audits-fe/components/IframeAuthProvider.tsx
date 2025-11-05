@@ -10,7 +10,9 @@ import useAuthStore from '@/store/authStore';
  * and sets the token in the auth store.
  */
 export default function IframeAuthProvider() {
-  const setIframeToken = useAuthStore((state) => state.setIframeToken);
+  // Narrowly type the selector parameter to avoid implicit any
+  interface SelectorState { setIframeToken: (token: string) => void }
+  const setIframeToken = useAuthStore((state: SelectorState) => state.setIframeToken);
 
   useEffect(() => {
     // Check if we're in an iframe
