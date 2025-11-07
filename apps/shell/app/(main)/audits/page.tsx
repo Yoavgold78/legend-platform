@@ -24,46 +24,55 @@ export default function AuditsPage() {
   useEffect(() => {
     if (!user || !iframeLoaded) return;
 
-    // Wait for iframe to load, then send Auth0 token
     const iframe = document.getElementById('audits-iframe') as HTMLIFrameElement;
-    if (iframe && iframe.contentWindow) {
-      // Post message to iframe with Auth0 user info
-      iframe.contentWindow.postMessage(
-        {
-          type: 'AUTH0_TOKEN',
-          user: {
-            sub: user.sub,
-            email: user.email,
-            name: user.name,
-            // Add other user properties as needed
-          },
-        },
-        auditsAppBaseUrl
-      );
-    }
+    if (!iframe || !iframe.contentWindow) return;
+
+    // Helper function to send token to iframe
+    const sendTokenToIframe = async () => {
+      try {
+        console.log('[Shell] Fetching access token for iframe...');
+        const tokenResponse = await fetch('/api/auth/token');
+        
+        if (!tokenResponse.ok) {
+          console.error('[Shell] Failed to get access token:', tokenResponse.status);
+          return;
+        }
+        
+        const { accessToken } = await tokenResponse.json();
+        console.log('[Shell] Sending access token to iframe (length:', accessToken?.length || 0, ')');
+        
+        if (iframe.contentWindow) {
+          iframe.contentWindow.postMessage(
+            {
+              type: 'AUTH0_TOKEN',
+              token: accessToken,
+            },
+            auditsAppBaseUrl
+          );
+        }
+      } catch (error) {
+        console.error('[Shell] Error sending token to iframe:', error);
+      }
+    };
+
+    // Send token immediately on load
+    sendTokenToIframe();
 
     // Listen for token requests from iframe
     const handleMessage = async (event: MessageEvent) => {
       // Verify it's from audits-fe
       if (event.origin !== auditsAppBaseUrl) return;
 
+      console.log('[Shell] Received message from iframe:', event.data?.type);
+
       if (event.data?.type === 'REQUEST_TOKEN' || event.data?.type === 'REQUEST_AUTH') {
-        // Fetch access token from our API
-        try {
-          const tokenResponse = await fetch('/api/auth/token');
-          if (tokenResponse.ok) {
-            const { accessToken } = await tokenResponse.json();
-            iframe.contentWindow?.postMessage(
-              {
-                type: 'TOKEN_RESPONSE',
-                token: accessToken,
-              },
-              auditsAppBaseUrl
-            );
-          }
-        } catch (error) {
-          console.error('Failed to get token for iframe:', error);
-        }
+        console.log('[Shell] iframe requested token, sending...');
+        await sendTokenToIframe();
+      }
+
+      if (event.data?.type === 'LOGOUT') {
+        console.log('[Shell] iframe requested logout');
+        window.location.href = '/api/auth/logout';
       }
     };
 

@@ -10,9 +10,19 @@ import { NextResponse } from 'next/server';
  */
 export async function GET() {
   try {
-    const { accessToken } = await getAccessToken();
+    console.log('[Shell /api/auth/token] Fetching access token...');
+    
+    // CRITICAL: Pass the audience to get a proper API access token
+    const audience = process.env.AUTH0_AUDIENCE || 'https://api.legend-platform.com';
+    const { accessToken } = await getAccessToken({
+      authorizationParams: {
+        audience,
+        scope: 'openid profile email',
+      },
+    });
 
     if (!accessToken) {
+      console.error('[Shell /api/auth/token] No access token available');
       return NextResponse.json({ error: 'No access token available' }, { status: 401 });
     }
 
@@ -21,12 +31,13 @@ export async function GET() {
       ? accessToken.slice('Bearer '.length)
       : accessToken;
 
+    console.log('[Shell /api/auth/token] Access token retrieved successfully (length:', rawToken.length, ')');
     return NextResponse.json({ accessToken: rawToken });
   } catch (error: any) {
     // Common Auth0 SDK error codes: login_required, consent_required, invalid_grant, etc.
     const code = error?.code || 'token_error';
     const status = code === 'login_required' ? 401 : 500;
-    console.error('Error getting access token:', code, error?.message);
+    console.error('[Shell /api/auth/token] Error getting access token:', code, error?.message, error?.stack);
     return NextResponse.json(
       { error: 'Failed to get access token', code, message: error?.message },
       { status }
