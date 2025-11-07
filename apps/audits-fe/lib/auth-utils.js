@@ -111,8 +111,18 @@ export const checkUserSession = async () => {
 
 /**
  * Redirect to login with current page as return URL
+ * In iframe mode, this posts a message to parent instead of redirecting
  */
 export const redirectToLogin = () => {
+  // Check if running in iframe
+  const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+  
+  if (isIframe) {
+    console.warn('[auth-utils] Cannot redirect to login in iframe mode - requesting auth from parent');
+    window.parent.postMessage({ type: 'REQUEST_AUTH' }, '*');
+    return;
+  }
+  
   const currentPath = window.location.pathname;
   const returnUrl = encodeURIComponent(currentPath);
   window.location.href = `/api/auth/login?returnTo=${returnUrl}`;

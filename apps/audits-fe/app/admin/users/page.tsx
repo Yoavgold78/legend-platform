@@ -45,6 +45,13 @@ const UsersAdminPage = () => {
   // Helper function to make authenticated API calls
   const makeAuthenticatedRequest = async (method: string, url: string, data: any = null) => {
     try {
+      const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+      
+      if (isIframe) {
+        // In iframe mode, don't call /api/auth/token - axios interceptor handles auth
+        throw new Error('makeAuthenticatedRequest should not be used in iframe mode - use axios directly');
+      }
+      
       const tokenResponse = await fetch('/api/auth/token');
       if (tokenResponse.status === 401) {
         // No valid API token — force login with audience

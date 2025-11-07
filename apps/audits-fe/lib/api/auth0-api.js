@@ -1,5 +1,15 @@
 // Auth0-enabled API functions with enhanced error handling
 const getAccessToken = async () => {
+  // Check if running in iframe mode
+  const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+  
+  if (isIframe) {
+    console.log('[auth0-api] Running in iframe mode - token should come via postMessage, not /api/auth/token');
+    // In iframe mode, the token should be provided via IframeAuthProvider → authStore
+    // This function should not be called in iframe mode; axios interceptor handles it
+    throw new Error('getAccessToken should not be called in iframe mode - use axios with iframeToken from authStore');
+  }
+  
   try {
     console.log('Attempting to fetch access token...');
     const tokenResponse = await fetch('/api/auth/token', {
@@ -72,8 +82,18 @@ const makeAuthenticatedRequest = async (method, url, data = null) => {
     
     if (!response.ok) {
       if (response.status === 401) {
-        console.error('API request returned 401 - redirecting to login');
-        window.location.href = `/api/auth/login`;
+        console.error('API request returned 401');
+        
+        // Check if running in iframe
+        const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+        if (isIframe) {
+          console.warn('[auth0-api] 401 in iframe mode - requesting auth from parent');
+          window.parent.postMessage({ type: 'REQUEST_AUTH' }, '*');
+        } else {
+          console.error('Redirecting to login');
+          window.location.href = `/api/auth/login`;
+        }
+        
         throw new Error('Authentication failed');
       }
       

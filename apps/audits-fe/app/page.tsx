@@ -40,8 +40,17 @@ export default function HomePage() {
           break;
       }
     } else {
-      // אם הבדיקה הסתיימה ואין משתמש, נשלח אותו להתחברות
-      router.push('/api/auth/login');
+      // אם הבדיקה הסתיימה ואין משתמש
+      // בודקים אם רצים בתוך iframe
+      const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+      
+      if (isIframe) {
+        console.warn('[HomePage] No user in iframe mode - requesting auth from parent');
+        window.parent.postMessage({ type: 'REQUEST_AUTH' }, '*');
+      } else {
+        // standalone mode - redirect to login
+        router.push('/api/auth/login');
+      }
     }
   }, [user, isLoading, router]);
 

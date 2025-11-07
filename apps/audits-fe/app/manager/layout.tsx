@@ -46,7 +46,13 @@ export default function ManagerLayout({
     }
     const isAuthorized = user && (user.role === 'manager' || user.role === 'admin' || user.role === 'employee');
     if (!isAuthorized) {
-      router.push('/api/auth/login');
+      const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+      if (isIframe) {
+        console.warn('[ManagerLayout] Unauthorized in iframe mode - requesting auth from parent');
+        window.parent.postMessage({ type: 'REQUEST_AUTH' }, '*');
+      } else {
+        router.push('/api/auth/login');
+      }
     }
   }, [user, isLoading, router]);
 

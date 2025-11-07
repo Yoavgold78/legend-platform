@@ -52,7 +52,13 @@ export default function AdminLayout({
     // לאחר שהטעינה הסתיימה, בודקים אם המשתמש הוא מנהל
     const isAuthorized = user && user.role === 'admin';
     if (!isAuthorized) {
-      router.push('/api/auth/login'); // אם לא מורשה, מעבירים להתחברות
+      const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+      if (isIframe) {
+        console.warn('[AdminLayout] Unauthorized in iframe mode - requesting auth from parent');
+        window.parent.postMessage({ type: 'REQUEST_AUTH' }, '*');
+      } else {
+        router.push('/api/auth/login'); // אם לא מורשה, מעבירים להתחברות
+      }
     }
   }, [user, isLoading, router]);
 
