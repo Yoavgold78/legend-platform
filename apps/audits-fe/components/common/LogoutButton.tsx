@@ -20,7 +20,14 @@ const LogoutButton = ({ variant = 'button' }: LogoutButtonProps) => {
     // 1. ניקוי ה-State הפנימי של האפליקציה
     logoutUser();
     
-    // 2. ניתוב לכתובת היציאה של Auth0
+    // 2. אם פועלים בתוך iframe – נבקש מה-Shell לבצע Logout גלובלי
+    const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+    if (isIframe) {
+      window.parent?.postMessage({ type: 'LOGOUT' }, '*');
+      return;
+    }
+
+    // 3. מצב עצמאי (standalone) – ננווט ליציאה של Auth0
     window.location.href = '/api/auth/logout';
   };
 

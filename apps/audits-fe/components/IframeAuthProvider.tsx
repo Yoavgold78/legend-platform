@@ -26,30 +26,30 @@ export default function IframeAuthProvider() {
     console.log('📌 Running in iframe mode, listening for auth messages');
 
     const handleMessage = async (event: MessageEvent) => {
-      // Verify origin - only accept from Shell
       const allowedOrigins = [
         'http://localhost:3000',
         'https://legend-shell-staging.onrender.com'
       ];
-
       if (!allowedOrigins.includes(event.origin)) {
-        console.warn('❌ Rejected message from unauthorized origin:', event.origin);
+        return; // silent ignore for noise reduction
+      }
+
+      // Direct token delivery (simpler contract): { type: 'AUTH0_TOKEN', token }
+      if (event.data?.type === 'AUTH0_TOKEN' && event.data?.token) {
+        console.log('✅ Received AUTH0_TOKEN with token');
+        setIframeToken(event.data.token);
         return;
       }
 
-      // Handle AUTH0_TOKEN message
+      // Two-step legacy handshake: request followed by TOKEN_RESPONSE
       if (event.data?.type === 'AUTH0_TOKEN') {
-        console.log('✅ Received AUTH0_TOKEN from parent');
-        
-        // Request access token from parent
-        if (window.parent) {
-          window.parent.postMessage({ type: 'REQUEST_TOKEN' }, event.origin);
-        }
+        console.log('ℹ️ AUTH0_TOKEN handshake trigger – requesting token');
+        window.parent?.postMessage({ type: 'REQUEST_TOKEN' }, event.origin);
+        return;
       }
 
-      // Handle TOKEN_RESPONSE message
       if (event.data?.type === 'TOKEN_RESPONSE' && event.data?.token) {
-        console.log('✅ Received access token from parent');
+        console.log('✅ Received TOKEN_RESPONSE with token');
         setIframeToken(event.data.token);
       }
     };
@@ -58,8 +58,10 @@ export default function IframeAuthProvider() {
 
     // Request initial auth on mount
     if (window.parent) {
-      console.log('📤 Requesting initial token from parent');
+      console.log('📤 Requesting initial token from parent (REQUEST_AUTH)');
       window.parent.postMessage({ type: 'REQUEST_AUTH' }, '*');
+      // Also proactively request legacy token path
+      window.parent.postMessage({ type: 'REQUEST_TOKEN' }, '*');
     }
 
     return () => {
