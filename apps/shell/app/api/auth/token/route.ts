@@ -1,6 +1,9 @@
 import { getAccessToken } from '@auth0/nextjs-auth0';
 import { NextResponse } from 'next/server';
 
+// Force this route to be dynamic (uses cookies/session) - suppress Next.js static build warnings
+export const dynamic = 'force-dynamic';
+
 /**
  * Token API Route
  * 

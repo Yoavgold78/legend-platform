@@ -39,7 +39,16 @@ export async function GET(request: Request) {
     
     // Otherwise, use Auth0 session (standalone mode)
     // getSession() works without parameters in Route Handlers
-    const session = await getSession();
+    // IMPORTANT: If Auth0 env vars are missing (iframe-only mode), this will throw
+    let session;
+    try {
+      session = await getSession();
+    } catch (sessionError: any) {
+      console.warn('⚠️ getSession() failed (likely Auth0 not configured - iframe-only mode):', sessionError.message);
+      console.log('❌ No Auth0 session and no Authorization header');
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+    
     if (!session || !session.user) {
       console.log('❌ No Auth0 session found and no Authorization header');
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
