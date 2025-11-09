@@ -14,10 +14,13 @@ export const GET = handleAuth({
   }),
   callback: handleCallback({
     redirectUri: process.env.AUTH0_BASE_URL ? `${process.env.AUTH0_BASE_URL}/api/auth/callback` : undefined,
-    afterCallback: async (_req: NextRequest, session: Session) => {
+    afterCallback: async (req: NextRequest, session: Session) => {
       console.log('[Shell Callback] ✅ Callback successful');
       console.log('[Shell Callback] User:', session.user?.email);
       console.log('[Shell Callback] Session created:', !!session);
+      console.log('[Shell Callback] Session object keys:', Object.keys(session));
+      console.log('[Shell Callback] Request URL:', req.url);
+      console.log('[Shell Callback] Request headers - cookie:', req.headers.get('cookie') ? 'present' : 'not present');
       return session;
     },
   }),

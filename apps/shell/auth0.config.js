@@ -4,15 +4,20 @@
  * This file is read by @auth0/nextjs-auth0 SDK automatically.
  * It overrides default settings to fix session cookie issues.
  * 
- * CRITICAL: Fixes ERR_MISSING_SESSION by properly configuring
- * session cookies and ensuring they persist across requests.
+ * CRITICAL FIX: The issue is that cookies must be set with the correct
+ * attributes for the browser to accept and send them back.
  * 
- * IMPORTANT: For iframe authentication to work across different domains:
- * - In production (HTTPS): Use sameSite='none' with secure=true
- * - In local dev (HTTP): Use sameSite='lax' with secure=false
+ * For Render production with HTTPS and iframe support:
+ * - secure: true (required for HTTPS)
+ * - sameSite: 'lax' (changed from 'none' - see explanation below)
+ * 
+ * WHY LAX INSTEAD OF NONE:
+ * While 'none' allows cross-site requests, it has issues:
+ * 1. Browsers increasingly block sameSite=none cookies even with secure=true
+ * 2. The iframe and parent are same-origin (both on onrender.com)
+ * 3. 'lax' works for same-site navigation and top-level forms
+ * 4. For same-origin iframes, 'lax' is sufficient
  */
-
-const isProduction = process.env.NODE_ENV === 'production';
 
 // Export configuration object that Auth0 SDK will read
 module.exports = {
@@ -24,15 +29,12 @@ module.exports = {
     
     // Cookie configuration - CRITICAL for fixing session issues
     cookie: {
-      domain: undefined, // Let SDK auto-detect from AUTH0_BASE_URL
+      domain: undefined, // Auto-detect from AUTH0_BASE_URL
       path: '/',
-      transient: false, // Don't delete cookie on browser close
-      httpOnly: true, // Security: cookie not accessible via JavaScript
-      // CRITICAL: sameSite='none' requires secure=true (HTTPS)
-      // Production: Use 'none' for cross-origin iframe support
-      // Development: Use 'lax' for localhost without HTTPS
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      transient: false, // Persist cookie across browser restarts
+      httpOnly: true, // Security: not accessible via JavaScript
+      secure: true, // REQUIRED for HTTPS (Render production)
+      sameSite: 'lax', // Changed from 'none' - lax works for same-origin
     },
   },
   
