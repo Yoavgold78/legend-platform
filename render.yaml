@@ -3,7 +3,7 @@ services:
   - type: web
     name: shell
     env: node
-    buildCommand: npm install && npm run build --workspace=apps/shell
+    buildCommand: npm install --include=dev && npm run build --workspace=apps/shell
     startCommand: cd apps/shell && npm start
     envVars:
       - key: AUTH0_SECRET
@@ -67,7 +67,7 @@ services:
   - type: web
     name: audits-fe
     env: node
-    buildCommand: npm install && cd apps/audits-fe && npm run build
+    buildCommand: npm install --include=dev && npm run build --workspace=apps/audits-fe
     startCommand: cd apps/audits-fe && npm start
     envVars:
       - key: AUTH0_SECRET
