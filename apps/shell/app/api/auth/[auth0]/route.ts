@@ -1,4 +1,5 @@
-import { handleAuth, handleLogin, handleLogout, handleCallback } from '@auth0/nextjs-auth0';
+import { handleAuth, handleLogin, handleLogout, handleCallback, Session } from '@auth0/nextjs-auth0';
+import { NextRequest } from 'next/server';
 
 export const GET = handleAuth({
   login: handleLogin({
@@ -12,7 +13,7 @@ export const GET = handleAuth({
   }),
   callback: handleCallback({
     redirectUri: process.env.AUTH0_BASE_URL ? `${process.env.AUTH0_BASE_URL}/api/auth/callback` : undefined,
-    afterCallback: async (req, session) => {
+    afterCallback: async (_req: NextRequest, session: Session) => {
       console.log('[Shell Callback] ✅ Callback successful');
       console.log('[Shell Callback] User:', session.user?.email);
       console.log('[Shell Callback] Session created:', !!session);
