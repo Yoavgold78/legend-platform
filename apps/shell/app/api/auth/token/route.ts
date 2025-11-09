@@ -15,6 +15,8 @@ export const runtime = 'nodejs'; // Ensure we're using Node.js runtime for bette
 export async function GET(request: Request) {
   try {
     console.log('[Shell /api/auth/token] Fetching access token...');
+    console.log('[Shell /api/auth/token] Request URL:', request.url);
+    console.log('[Shell /api/auth/token] Request method:', request.method);
     
     // Log cookies for debugging
     const cookies = request.headers.get('cookie');
@@ -22,19 +24,25 @@ export async function GET(request: Request) {
     if (cookies) {
       const auth0Cookies = cookies.split(';').filter(c => c.trim().startsWith('appSession') || c.trim().startsWith('auth0'));
       console.log('[Shell /api/auth/token] Auth0 cookies count:', auth0Cookies.length);
+      console.log('[Shell /api/auth/token] Auth0 cookie names:', auth0Cookies.map(c => c.split('=')[0].trim()));
     }
+    
+    // Log all headers for debugging
+    console.log('[Shell /api/auth/token] All headers:', Object.fromEntries(request.headers.entries()));
     
     // FIRST: Check if session exists
     try {
       const session = await getSession();
+      console.log('[Shell /api/auth/token] getSession() returned:', session ? 'session object' : 'null');
       if (!session || !session.user) {
         console.error('[Shell /api/auth/token] ❌ No session found - user needs to login');
-        console.error('[Shell /api/auth/token] This usually means session cookies are not being sent');
+        console.error('[Shell /api/auth/token] This usually means session cookies are not being sent or not readable');
         return NextResponse.json({ error: 'Not authenticated', code: 'ERR_MISSING_SESSION' }, { status: 401 });
       }
       console.log('[Shell /api/auth/token] ✅ Session found for user:', session.user.email);
     } catch (sessionError: any) {
       console.error('[Shell /api/auth/token] ❌ Session check failed:', sessionError.message);
+      console.error('[Shell /api/auth/token] Error code:', sessionError.code);
       console.error('[Shell /api/auth/token] Stack:', sessionError.stack);
       return NextResponse.json({ error: 'Session error', code: 'ERR_SESSION_CHECK', message: sessionError.message }, { status: 401 });
     }

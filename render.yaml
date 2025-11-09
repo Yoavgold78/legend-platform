@@ -6,6 +6,8 @@ services:
     buildCommand: npm install --include=dev && npm run build --workspace=apps/shell
     startCommand: cd apps/shell && npm start
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: AUTH0_SECRET
         generateValue: true
       - key: AUTH0_BASE_URL
@@ -16,6 +18,8 @@ services:
         sync: false
       - key: AUTH0_CLIENT_SECRET
         sync: false
+      - key: AUTH0_AUDIENCE
+        value: https://api.legend-platform.com
       - key: NEXT_PUBLIC_AUDITS_FE_URL
         sync: false  # Set to audits-fe URL after Story 1.4
     healthCheckPath: /

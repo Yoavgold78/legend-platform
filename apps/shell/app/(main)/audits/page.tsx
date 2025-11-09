@@ -31,7 +31,9 @@ export default function AuditsPage() {
     const sendTokenToIframe = async () => {
       try {
         console.log('[Shell] Fetching access token for iframe...');
-        const tokenResponse = await fetch('/api/auth/token');
+        const tokenResponse = await fetch('/api/auth/token', {
+          credentials: 'include', // CRITICAL: Include cookies in the request
+        });
         
         if (!tokenResponse.ok) {
           console.error('[Shell] Failed to get access token:', tokenResponse.status);
