@@ -5,7 +5,8 @@ export const GET = handleAuth({
   login: handleLogin({
     authorizationParams: {
       audience: process.env.AUTH0_AUDIENCE || 'https://api.legend-platform.com',
-      scope: 'openid profile email',
+      // CRITICAL: Include offline_access to get refresh token for automatic token renewal
+      scope: 'openid profile email offline_access',
       // Optional: force showing the login screen even if a session exists at Auth0
       // Set NEXT_PUBLIC_AUTH0_PROMPT=login to enable during debugging
       ...(process.env.NEXT_PUBLIC_AUTH0_PROMPT === 'login' ? { prompt: 'login' } : {}),
@@ -20,12 +21,15 @@ export const GET = handleAuth({
       return session;
     },
   }),
-  // Ensure logout clears the Auth0 session and returns to the app base URL
+  // Logout configuration - server-side redirect to avoid CORS issues
   logout: handleLogout({
     returnTo: process.env.AUTH0_BASE_URL || 'http://localhost:3000',
     logoutParams: {
-      // Set AUTH0_LOGOUT_FEDERATED=true to also log out of upstream IdPs during development
+      // Set AUTH0_LOGOUT_FEDERATED=true to also log out of upstream IdPs
       federated: process.env.AUTH0_LOGOUT_FEDERATED === 'true',
     },
   }),
 });
+
+// Also support POST for logout (prevents CORS issues with client-side logout)
+export const POST = GET;

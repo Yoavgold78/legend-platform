@@ -6,7 +6,13 @@
  * 
  * CRITICAL: Fixes ERR_MISSING_SESSION by properly configuring
  * session cookies and ensuring they persist across requests.
+ * 
+ * IMPORTANT: For iframe authentication to work across different domains:
+ * - In production (HTTPS): Use sameSite='none' with secure=true
+ * - In local dev (HTTP): Use sameSite='lax' with secure=false
  */
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Export configuration object that Auth0 SDK will read
 module.exports = {
@@ -22,8 +28,11 @@ module.exports = {
       path: '/',
       transient: false, // Don't delete cookie on browser close
       httpOnly: true, // Security: cookie not accessible via JavaScript
-      secure: true, // HTTPS only (auto-set in production)
-      sameSite: 'lax', // Allow cookie on same-site navigations and top-level navigation
+      // CRITICAL: sameSite='none' requires secure=true (HTTPS)
+      // Production: Use 'none' for cross-origin iframe support
+      // Development: Use 'lax' for localhost without HTTPS
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
     },
   },
   
