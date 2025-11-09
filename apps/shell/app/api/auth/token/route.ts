@@ -1,4 +1,4 @@
-import { getAccessToken } from '@auth0/nextjs-auth0';
+import { getAccessToken, getSession } from '@auth0/nextjs-auth0';
 import { NextResponse } from 'next/server';
 
 // Force this route to be dynamic (uses cookies/session) - suppress Next.js static build warnings
@@ -14,6 +14,19 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     console.log('[Shell /api/auth/token] Fetching access token...');
+    
+    // FIRST: Check if session exists
+    try {
+      const session = await getSession();
+      if (!session || !session.user) {
+        console.error('[Shell /api/auth/token] ❌ No session found - user needs to login');
+        return NextResponse.json({ error: 'Not authenticated', code: 'ERR_MISSING_SESSION' }, { status: 401 });
+      }
+      console.log('[Shell /api/auth/token] ✅ Session found for user:', session.user.email);
+    } catch (sessionError: any) {
+      console.error('[Shell /api/auth/token] ❌ Session check failed:', sessionError.message);
+      return NextResponse.json({ error: 'Session error', code: 'ERR_SESSION_CHECK', message: sessionError.message }, { status: 401 });
+    }
     
     // CRITICAL: Pass the audience to get a proper API access token
     const audience = process.env.AUTH0_AUDIENCE || 'https://api.legend-platform.com';

@@ -12,6 +12,12 @@ export const GET = handleAuth({
   }),
   callback: handleCallback({
     redirectUri: process.env.AUTH0_BASE_URL ? `${process.env.AUTH0_BASE_URL}/api/auth/callback` : undefined,
+    afterCallback: async (req, session) => {
+      console.log('[Shell Callback] ✅ Callback successful');
+      console.log('[Shell Callback] User:', session.user?.email);
+      console.log('[Shell Callback] Session created:', !!session);
+      return session;
+    },
   }),
   // Ensure logout clears the Auth0 session and returns to the app base URL
   logout: handleLogout({
