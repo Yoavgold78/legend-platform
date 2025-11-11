@@ -1,33 +1,31 @@
 services:
-  services:
   # Shell - Next.js Frontend (Story 1.2)
   - type: web
-    name: legend-shell-staging # <-- FIX: שם השירות תוקן
+    name: legend-shell-staging # <-- FIX 1: שם השירות תואם ל-Render
     env: node
     buildCommand: npm install --include=dev && npm run build --workspace=apps/shell
-    startCommand: cd apps/shell && npm start
+    startCommand: node apps/shell/.next/standalone/server.js # <-- FIX 2: פקודת הרצה נכונה
     envVars:
       - key: NODE_ENV
         value: production
       - key: AUTH0_SECRET
         generateValue: true
       - key: AUTH0_BASE_URL
-        value: https://legend-shell-staging.onrender.com # <-- ודא שזה תואם להגדרות ב-Auth0
+        value: https://legend-shell-staging.onrender.com # <-- FIX 3: ייטען כעת מהקובץ
       - key: AUTH0_ISSUER_BASE_URL
-        sync: false # יש להגדיר ידנית ב-Render Dashboard
+        sync: false 
       - key: AUTH0_CLIENT_ID
-        sync: false # יש להגדיר ידנית ב-Render Dashboard
+        sync: false 
       - key: AUTH0_CLIENT_SECRET
-        sync: false # יש להגדיר ידנית ב-Render Dashboard
+        sync: false 
       - key: AUTH0_AUDIENCE
         value: https://api.legend-platform.com
       - key: NEXT_PUBLIC_AUDITS_FE_URL
-        sync: false  # יש להגדיר ידנית לכתובת של audits-fe
-    healthCheckPath: /
+        sync: false  
 
   # API Gateway - Central Token Validation (Story 1.3)
   - type: web
-    name: legend-gateway-staging
+    name: legend-gateway-staging # <-- FIX 4: שם השירות תואם ל-Render
     env: node
     buildCommand: npm install
     startCommand: cd apps/api-gateway && node src/server.js
@@ -35,26 +33,26 @@ services:
       - key: AUTH0_AUDIENCE
         value: https://api.legend-platform.com
       - key: AUTH0_ISSUER_BASE_URL
-        sync: false # יש להגדיר ידנית ב-Render Dashboard
+        sync: false 
       - key: AUDITS_BE_URL
-        value: http://audits-be:5000 # כתובת פנימית לשירות ה-Backend
+        value: http://audits-be:5000 
       - key: SCHEDULE_BE_URL
-        sync: false # יש להגדיר ידנית כשיעלה
+        sync: false 
       - key: NODE_ENV
         value: production
     healthCheckPath: /api/v1/health-check
 
   # AuditsApp Backend - Private Service (Story 1.4)
-  - type: pserv # <-- FIX: שונה ל-Private Service
+  - type: pserv 
     name: audits-be
     env: node
     buildCommand: npm install && npm install --include=dev && cd apps/audits-be && npm install --arch=x64 --platform=linux sharp
     startCommand: cd apps/audits-be && node index.js
     envVars:
       - key: MONGO_URI
-        sync: false  # מוגדר ידנית ב-Render dashboard
+        sync: false  
       - key: CLOUDINARY_CLOUD_NAME
-        sync: false  # Cloudinary configuration
+        sync: false  
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
@@ -64,7 +62,7 @@ services:
       - key: HOST
         value: 0.0.0.0
       - key: PORT
-        value: 5000 # הפורט הפנימי שה-Gateway פונה אליו
+        value: 5000 
     healthCheckPath: /api/v1/audits/health
 
   # AuditsApp Frontend - Web Service (Story 1.4)
@@ -72,23 +70,10 @@ services:
     name: audits-fe
     env: node
     buildCommand: npm install --include=dev && npm run build --workspace=apps/audits-fe
-    startCommand: cd apps/audits-fe && npm start
+    startCommand: node apps/audits-fe/.next/standalone/server.js # <-- FIX 5: פקודת הרצה נכונה
     envVars:
-      # --- חשוב ---
-      # שירות זה פועל במצב iframe בלבד.
-      # אין להגדיר משתני Auth0 כאן, כדי לא לבלבל את ה-SDK.
-      # האפליקציה אמורה לקבל טוקן אך ורק דרך postMessage.
-      # -----------------
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
-        value: https://api-gateway.onrender.com # יש לעדכן לכתובת הציבורית של ה-api-gateway
-
-
-
-  # Placeholder for schedule-be (Story 1.5)
-  # - type: pserv
-  #   name: schedule-be
-  #   env: node
-  #   buildCommand: npm install
-  #   startCommand: node apps/schedule-be/src/server.js
+        value: https://legend-gateway-staging.onrender.com
+      # --- FIX 6: הוסרו משתני Auth0 מיותרים מכאן ---
