@@ -21,7 +21,7 @@ services:
       - key: AUTH0_AUDIENCE
         value: https://api.legend-platform.com
       - key: NEXT_PUBLIC_AUDITS_FE_URL
-        sync: false  
+        value: https://audits-fe.onrender.com  
 
   # API Gateway - Central Token Validation (Story 1.3)
   - type: web
