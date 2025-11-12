@@ -1,10 +1,10 @@
 services:
   # Shell - Next.js Frontend (Story 1.2)
   - type: web
-    name: legend-shell-staging # <-- FIX 1: שם השירות תואם ל-Render
+    name: legend-shell-staging
     env: node
     buildCommand: npm install --include=dev && npm run build --workspace=apps/shell
-    startCommand: node apps/shell/.next/standalone/server.js # <-- FIX 2: פקודת הרצה נכונה
+    startCommand: cd apps/shell && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -70,7 +70,7 @@ services:
     name: audits-fe
     env: node
     buildCommand: npm install --include=dev && npm run build --workspace=apps/audits-fe
-    startCommand: node apps/audits-fe/.next/standalone/server.js # <-- FIX 5: פקודת הרצה נכונה
+    startCommand: cd apps/audits-fe && npm start
     envVars:
       - key: NODE_ENV
         value: production

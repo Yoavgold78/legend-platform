@@ -14,8 +14,7 @@ const nextConfig = {
     // Disable static page generation for dynamic routes
     appDir: true,
   },
-  // Output standalone for better deployment
-  output: 'standalone',
+  // Note: 'standalone' output removed - using standard Next.js server for Render
   async headers() {
     return [
       {
