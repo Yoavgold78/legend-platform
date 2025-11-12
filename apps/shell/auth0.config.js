@@ -21,6 +21,9 @@
 
 // Export configuration object that Auth0 SDK will read
 module.exports = {
+  // Base URL configuration - CRITICAL: Must be set explicitly for production
+  baseURL: process.env.AUTH0_BASE_URL || process.env.VERCEL_URL || undefined,
+  
   // Session configuration
   session: {
     // Session duration
