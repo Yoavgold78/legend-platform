@@ -63,7 +63,7 @@ services:
         value: 0.0.0.0
       - key: PORT
         value: 5000 
-    healthCheckPath: /api/v1/audits/health
+    
 
   # AuditsApp Frontend - Web Service (Story 1.4)
   - type: web
