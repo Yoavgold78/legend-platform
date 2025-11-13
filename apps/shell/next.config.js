@@ -11,6 +11,12 @@ const nextConfig = {
   env: {
     NEXTAUTH_URL: process.env.AUTH0_BASE_URL,
   },
+  
+  // CRITICAL: Tell Next.js we're behind a proxy
+  // This makes Next.js trust x-forwarded-* headers for URL construction
+  experimental: {
+    trustHostHeader: true,
+  },
 }
 
 module.exports = nextConfig

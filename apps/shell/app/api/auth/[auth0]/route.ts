@@ -10,6 +10,8 @@ export const GET = handleAuth({
       // Optional: force showing the login screen even if a session exists at Auth0
       // Set NEXT_PUBLIC_AUTH0_PROMPT=login to enable during debugging
       ...(process.env.NEXT_PUBLIC_AUTH0_PROMPT === 'login' ? { prompt: 'login' } : {}),
+      // CRITICAL FIX: Force redirect_uri with explicit base URL
+      redirect_uri: process.env.AUTH0_BASE_URL ? `${process.env.AUTH0_BASE_URL}/api/auth/callback` : undefined,
     },
   }),
   callback: handleCallback({

@@ -16,11 +16,13 @@ const { parse } = require('url');
 const next = require('next');
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = 'localhost';
+// CRITICAL FIX: Don't set hostname to 'localhost' - let Next.js detect from headers
+// Setting hostname forces Next.js to use that value for all URL construction
 const port = parseInt(process.env.PORT, 10) || 3000;
 
-// Initialize Next.js app
-const app = next({ dev, hostname, port });
+// Initialize Next.js app WITHOUT hardcoded hostname
+// This allows Next.js to construct URLs from x-forwarded-host header
+const app = next({ dev, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
@@ -81,7 +83,7 @@ app.prepare().then(() => {
       process.exit(1);
     })
     .listen(port, () => {
-      console.log(`> Ready on http://${hostname}:${port}`);
+      console.log(`> Ready on port ${port}`);
       console.log(`> Environment: ${process.env.NODE_ENV}`);
       console.log(`> AUTH0_BASE_URL: ${process.env.AUTH0_BASE_URL}`);
     });
