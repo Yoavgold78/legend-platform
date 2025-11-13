@@ -4,7 +4,7 @@ services:
     name: legend-shell-staging
     env: node
     buildCommand: npm install --include=dev && npm run build --workspace=apps/shell
-    startCommand: cd apps/shell && npm start
+    startCommand: cd apps/shell && PORT=10000 npm start
     envVars:
       - key: NODE_ENV
         value: production
