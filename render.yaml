@@ -40,7 +40,7 @@ services:
         sync: false 
       - key: NODE_ENV
         value: production
-    healthCheckPath: /api/v1/health-check
+    healthCheckPath: /api/v1/health
 
   # AuditsApp Backend - Private Service (Story 1.4)
   - type: pserv 
