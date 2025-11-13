@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node server.js",
     "lint": "eslint . --no-error-on-unmatched-pattern || echo 'No files to lint'"
   },
   "dependencies": {

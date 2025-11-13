@@ -1,5 +1,11 @@
 import { withMiddlewareAuthRequired } from '@auth0/nextjs-auth0/edge';
 
+/**
+ * Auth0 middleware for protected routes
+ * 
+ * NOTE: The x-forwarded-port header fix is handled in server.js (custom server)
+ * before requests reach Next.js, so this middleware works with correct headers.
+ */
 export default withMiddlewareAuthRequired();
 
 export const config = {
