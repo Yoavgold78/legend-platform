@@ -26,19 +26,43 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
-      // CRITICAL FIX: Remove x-forwarded-port header
-      // This prevents Auth0 SDK from constructing localhost:10000 URLs
-      delete req.headers['x-forwarded-port'];
+      // CRITICAL FIX: Proxy the headers object to hide x-forwarded-port
+      // Simple delete doesn't work because Auth0 SDK may cache the original object
+      const originalHeaders = req.headers;
+      req.headers = new Proxy(originalHeaders, {
+        get(target, prop) {
+          // Block x-forwarded-port completely
+          if (prop === 'x-forwarded-port') {
+            return undefined;
+          }
+          return target[prop];
+        },
+        has(target, prop) {
+          // Hide x-forwarded-port from 'in' checks
+          if (prop === 'x-forwarded-port') {
+            return false;
+          }
+          return prop in target;
+        },
+        ownKeys(target) {
+          // Hide x-forwarded-port from Object.keys() and similar
+          return Reflect.ownKeys(target).filter(key => key !== 'x-forwarded-port');
+        },
+        getOwnPropertyDescriptor(target, prop) {
+          // Hide x-forwarded-port from property descriptor checks
+          if (prop === 'x-forwarded-port') {
+            return undefined;
+          }
+          return Object.getOwnPropertyDescriptor(target, prop);
+        }
+      });
       
       // Log for debugging (remove in production if too verbose)
       if (req.url?.includes('/api/auth')) {
         console.log('[Custom Server] Auth route:', req.url);
-        console.log('[Custom Server] Headers after fix:', {
-          host: req.headers.host,
-          'x-forwarded-host': req.headers['x-forwarded-host'],
-          'x-forwarded-proto': req.headers['x-forwarded-proto'],
-          'x-forwarded-port': req.headers['x-forwarded-port'], // Should be undefined
-        });
+        console.log('[Custom Server] x-forwarded-port in headers?', 'x-forwarded-port' in req.headers);
+        console.log('[Custom Server] x-forwarded-port value:', req.headers['x-forwarded-port']);
+        console.log('[Custom Server] Headers keys:', Object.keys(req.headers).filter(k => k.includes('forwarded')));
       }
 
       // Parse URL
