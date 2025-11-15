@@ -47,13 +47,18 @@ module.exports = {
     
     // Cookie configuration - CRITICAL for fixing session issues
     cookie: {
-      domain: undefined, // Auto-detect from AUTH0_BASE_URL
+      domain: '.onrender.com', // CRITICAL FIX: Force cookie domain
       path: '/',
       transient: false, // Persist cookie across browser restarts
       httpOnly: true, // Security: not accessible via JavaScript
       secure: true, // REQUIRED for HTTPS (Render production)
       sameSite: 'lax', // Changed from 'none' - lax works for same-origin
     },
+  },
+  
+  // Logout configuration to fix CORS issue
+  logout: {
+    returnTo: getBaseURL(),
   },
   
   // Authorization parameters
