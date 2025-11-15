@@ -1,7 +1,7 @@
 import { handleAuth, handleLogin, handleLogout, handleCallback, Session } from '@auth0/nextjs-auth0';
 import { NextRequest } from 'next/server';
 
-export const GET = handleAuth({
+const authHandler = handleAuth({
   login: handleLogin({
     authorizationParams: {
       audience: process.env.AUTH0_AUDIENCE || 'https://api.legend-platform.com',
@@ -36,5 +36,28 @@ export const GET = handleAuth({
   }),
 });
 
+// Wrapper adds high-signal diagnostics around Auth0 routes
+export async function GET(req: NextRequest) {
+  const url = req.nextUrl;
+  console.log('[Shell Auth Route] Incoming request:', req.method, url.pathname, url.search);
+  console.log('[Shell Auth Route] req.url:', req.url);
+  console.log('[Shell Auth Route] Host header:', req.headers.get('host'));
+  console.log('[Shell Auth Route] x-forwarded-host:', req.headers.get('x-forwarded-host'));
+  console.log('[Shell Auth Route] x-forwarded-proto:', req.headers.get('x-forwarded-proto'));
+
+  const response = await authHandler(req);
+
+  const setCookie = response.headers.get('set-cookie');
+  console.log('[Shell Auth Route] Response status:', response.status);
+  console.log('[Shell Auth Route] Set-Cookie header present:', setCookie ? 'YES' : 'NO');
+  if (setCookie) {
+    console.log('[Shell Auth Route] Set-Cookie preview:', setCookie.slice(0, 200));
+  }
+
+  return response;
+}
+
 // Also support POST for logout (prevents CORS issues with client-side logout)
-export const POST = GET;
+export async function POST(req: NextRequest) {
+  return GET(req);
+}
