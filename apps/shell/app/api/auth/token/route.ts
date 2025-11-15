@@ -1,5 +1,6 @@
-import { getAccessToken, getSession } from '@auth0/nextjs-auth0';
+import { getAccessToken as auth0GetAccessToken } from '@auth0/nextjs-auth0';
 import { NextResponse } from 'next/server';
+import { getSession, getAccessToken } from '@/lib/auth0-server';
 
 // Force this route to be dynamic (uses cookies/session) - suppress Next.js static build warnings
 export const dynamic = 'force-dynamic';
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
     
     // FIRST: Check if session exists
     try {
-      const session = await getSession();
+      const session = await getSession(request);
       console.log('[Shell /api/auth/token] getSession() returned:', session ? 'session object' : 'null');
       if (!session || !session.user) {
         console.error('[Shell /api/auth/token] ❌ No session found - user needs to login');
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
     // CRITICAL: Pass the audience to get a proper API access token
     // Include offline_access scope to get refresh token for automatic renewal
     const audience = process.env.AUTH0_AUDIENCE || 'https://api.legend-platform.com';
-    const { accessToken } = await getAccessToken({
+    const { accessToken } = await getAccessToken(request, {
       authorizationParams: {
         audience,
         scope: 'openid profile email offline_access',
