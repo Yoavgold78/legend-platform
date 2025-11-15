@@ -51,8 +51,8 @@ export async function getSession(req?: Request): Promise<Session | null | undefi
     
     console.log('[Auth0 Wrapper] Using baseURL:', process.env.AUTH0_BASE_URL);
     
-    // Call the original getSession
-    const session = await auth0GetSession(req as any);
+    // Call the original getSession (no args in App Router - uses context automatically)
+    const session = await auth0GetSession();
     
     // Restore original value
     if (originalBaseUrl !== undefined) {
@@ -80,8 +80,8 @@ export async function getAccessToken(req?: Request, options?: any): Promise<{ ac
     
     console.log('[Auth0 Wrapper] Using baseURL for token:', process.env.AUTH0_BASE_URL);
     
-    // Call the original getAccessToken
-    const result = await auth0GetAccessToken(req as any, options);
+    // Call the original getAccessToken (no req arg in App Router - uses context)
+    const result = await auth0GetAccessToken(options);
     
     // Restore original value
     if (originalBaseUrl !== undefined) {
