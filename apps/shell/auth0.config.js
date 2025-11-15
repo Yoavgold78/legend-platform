@@ -19,10 +19,25 @@
  * 4. For same-origin iframes, 'lax' is sufficient
  */
 
+/**
+ * Get base URL - CRITICAL FIX for localhost:10000 issue
+ * Auth0 SDK constructs URLs from request object which shows localhost:10000
+ * We MUST override this with the actual public URL
+ */
+function getBaseURL() {
+  // ALWAYS use the explicit AUTH0_BASE_URL in production
+  if (process.env.NODE_ENV === 'production' && process.env.AUTH0_BASE_URL) {
+    console.log('[Auth0 Config] Forcing baseURL to:', process.env.AUTH0_BASE_URL);
+    return process.env.AUTH0_BASE_URL;
+  }
+  
+  return process.env.AUTH0_BASE_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+}
+
 // Export configuration object that Auth0 SDK will read
 module.exports = {
   // Base URL configuration - CRITICAL: Must be set explicitly for production
-  baseURL: process.env.AUTH0_BASE_URL || process.env.VERCEL_URL || undefined,
+  baseURL: getBaseURL(),
   
   // Session configuration
   session: {

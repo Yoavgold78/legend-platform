@@ -28,7 +28,7 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
-      // CRITICAL FIX: Proxy the headers object to hide x-forwarded-port
+      // CRITICAL FIX 1: Proxy the headers object to hide x-forwarded-port
       // Simple delete doesn't work because Auth0 SDK may cache the original object
       const originalHeaders = req.headers;
       req.headers = new Proxy(originalHeaders, {
@@ -36,6 +36,10 @@ app.prepare().then(() => {
           // Block x-forwarded-port completely
           if (prop === 'x-forwarded-port') {
             return undefined;
+          }
+          // Force correct host header
+          if (prop === 'host' && target['x-forwarded-host']) {
+            return target['x-forwarded-host'];
           }
           return target[prop];
         },
@@ -58,6 +62,23 @@ app.prepare().then(() => {
           return Object.getOwnPropertyDescriptor(target, prop);
         }
       });
+      
+      // CRITICAL FIX 2: Override socket.localAddress to prevent localhost URL construction
+      // Auth0 SDK may read from socket to construct URLs
+      if (req.socket && originalHeaders['x-forwarded-host']) {
+        const originalSocket = req.socket;
+        req.socket = new Proxy(originalSocket, {
+          get(target, prop) {
+            if (prop === 'localAddress') {
+              return originalHeaders['x-forwarded-host'];
+            }
+            if (prop === 'localPort') {
+              return originalHeaders['x-forwarded-proto'] === 'https' ? 443 : 80;
+            }
+            return target[prop];
+          }
+        });
+      }
       
       // Log for debugging (remove in production if too verbose)
       if (req.url?.includes('/api/auth')) {
