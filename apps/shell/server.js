@@ -71,6 +71,29 @@ app.prepare().then(() => {
         }
       });
       
+      if (!dev) {
+        try {
+          const baseUrl = process.env.AUTH0_BASE_URL ? new URL(process.env.AUTH0_BASE_URL) : undefined;
+          const fallbackHost = baseUrl?.host;
+          const fallbackProto = baseUrl?.protocol.replace(':', '');
+
+          const targetHost = originalHeaders['x-forwarded-host'] || fallbackHost || originalHeaders['host'];
+          const targetProto = originalHeaders['x-forwarded-proto'] || fallbackProto || 'https';
+          const targetPort = targetProto === 'https' ? '443' : '80';
+
+          if (targetHost) {
+            originalHeaders['host'] = targetHost;
+            originalHeaders['x-forwarded-host'] = targetHost;
+            originalHeaders[':authority'] = targetHost;
+          }
+
+          originalHeaders['x-forwarded-proto'] = targetProto;
+          originalHeaders['x-forwarded-port'] = targetPort;
+        } catch (err) {
+          console.error('[Custom Server] Failed to normalize host headers', err);
+        }
+      }
+      
       // CRITICAL FIX 2: Override socket.localAddress to prevent localhost URL construction
       // Auth0 SDK may read from socket to construct URLs
       if (req.socket && originalHeaders['x-forwarded-host']) {

@@ -4,7 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  trustHostHeader: true,
+  // Host header normalization handled in server.js for Render deployments
   
   // CRITICAL FIX: Override Next.js hostname detection
   // Render forwards port 10000 in headers, causing Auth0 to use localhost:10000
