@@ -28,14 +28,15 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
-      // CRITICAL FIX 1: Proxy the headers object to hide x-forwarded-port
+      // CRITICAL FIX 1: Proxy the headers object to normalize x-forwarded-* values
       // Simple delete doesn't work because Auth0 SDK may cache the original object
       const originalHeaders = req.headers;
       req.headers = new Proxy(originalHeaders, {
         get(target, prop) {
-          // Block x-forwarded-port completely
+          // Force x-forwarded-port to 443 so downstream URL builders stay on https
           if (prop === 'x-forwarded-port') {
-            return undefined;
+            // Force port 443 so frameworks build https URLs
+            return '443';
           }
           // Force correct host header
           if (prop === 'host' && target['x-forwarded-host']) {
@@ -46,18 +47,25 @@ app.prepare().then(() => {
         has(target, prop) {
           // Hide x-forwarded-port from 'in' checks
           if (prop === 'x-forwarded-port') {
-            return false;
+            return true;
           }
           return prop in target;
         },
         ownKeys(target) {
           // Hide x-forwarded-port from Object.keys() and similar
-          return Reflect.ownKeys(target).filter(key => key !== 'x-forwarded-port');
+          const keys = new Set(Reflect.ownKeys(target));
+          keys.add('x-forwarded-port');
+          return Array.from(keys);
         },
         getOwnPropertyDescriptor(target, prop) {
           // Hide x-forwarded-port from property descriptor checks
           if (prop === 'x-forwarded-port') {
-            return undefined;
+            return {
+              configurable: true,
+              enumerable: true,
+              value: '443',
+              writable: false,
+            };
           }
           return Object.getOwnPropertyDescriptor(target, prop);
         }
