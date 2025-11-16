@@ -84,7 +84,6 @@ app.prepare().then(() => {
           if (targetHost) {
             originalHeaders['host'] = targetHost;
             originalHeaders['x-forwarded-host'] = targetHost;
-            originalHeaders[':authority'] = targetHost;
           }
 
           originalHeaders['x-forwarded-proto'] = targetProto;
