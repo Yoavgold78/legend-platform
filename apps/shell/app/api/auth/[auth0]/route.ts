@@ -45,7 +45,11 @@ export async function GET(req: NextRequest) {
   console.log('[Shell Auth Route] x-forwarded-host:', req.headers.get('x-forwarded-host'));
   console.log('[Shell Auth Route] x-forwarded-proto:', req.headers.get('x-forwarded-proto'));
 
-  const response = await authHandler(req);
+  const pathname = req.nextUrl.pathname;
+  const authSegment = pathname.replace(/^\/api\/auth\/?/, '') || undefined;
+  const context = { params: { auth0: authSegment } } as any;
+
+  const response = await authHandler(req, context);
 
   const setCookie = response.headers.get('set-cookie');
   console.log('[Shell Auth Route] Response status:', response.status);
@@ -59,5 +63,11 @@ export async function GET(req: NextRequest) {
 
 // Also support POST for logout (prevents CORS issues with client-side logout)
 export async function POST(req: NextRequest) {
-  return GET(req);
+  const pathname = req.nextUrl.pathname;
+  const authSegment = pathname.replace(/^\/api\/auth\/?/, '') || undefined;
+  const context = { params: { auth0: authSegment } } as any;
+
+  console.log('[Shell Auth Route] Incoming request:', req.method, pathname, req.nextUrl.search);
+  const response = await authHandler(req, context);
+  return response;
 }
